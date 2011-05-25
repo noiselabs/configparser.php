@@ -15,7 +15,7 @@ namespace NoiseLabs\ToolKit\ConfigParser;
 /**
  * The Interface for the ConfigParser class.
  */
-interface ConfigParserInterface extends \ArrayAccess, \Traversable, \Countable
+interface ConfigParserInterface
 {
 	public function defaults();
 

@@ -20,21 +20,9 @@ use NoiseLabs\ToolKit\ConfigParser\File;
  *
  * @author Vítor Brandão <noisebleed@noiselabs.org>
  */
-class NoSectionsConfigParser implements \IteratorAggregate, NoSectionsConfigParserInterface
+class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfigParserInterface
 {
 	const HAS_SECTIONS		= false;
-
-	/**
-	 * The configuration representation is stored here.
-	 * @var array
-	 */
-	private $_data = array();
-
-	/**
-	 * An array of FILE objects representing the loaded files.
-	 * @var array
-	 */
-	private $_files = array();
 
 	/**
 	 * Return a list of options available
@@ -49,6 +37,6 @@ class NoSectionsConfigParser implements \IteratorAggregate, NoSectionsConfigPars
 	 */
 	public function hasOption($option)
 	{
-		return isset($this->_data[$option]);
+		return isset($this->data[$option]);
 	}
 }

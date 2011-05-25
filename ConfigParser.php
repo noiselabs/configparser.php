@@ -12,10 +12,10 @@
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
+use NoiseLabs\ToolKit\ConfigParser\BaseConfigParser;
 use NoiseLabs\ToolKit\ConfigParser\File;
 use NoiseLabs\ToolKit\ConfigParser\Exception\DuplicateSectionException;
 use NoiseLabs\ToolKit\ConfigParser\Exception\NoSectionException;
-use NoiseLabs\ToolKit\ParameterBag;
 
 /**
  * The ConfigParser class implements a basic configuration language which
@@ -33,54 +33,10 @@ use NoiseLabs\ToolKit\ParameterBag;
  *
  * @author Vítor Brandão <noisebleed@noiselabs.org>
  */
-Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
+Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 {
 	const DEFAULT_SECTION 	= 'DEFAULT';
 	const HAS_SECTIONS		= true;
-
-	/**
-	 * A set of internal options used when parsing and writing files.
-	 */
-	public $settings = array();
-
-	/**
-	 * The configuration representation is stored here.
-	 * @var array
-	 */
-	private $_data = array();
-
-	/**
-	 *
-	 * @var array
-	 */
-	private $_defaults = array();
-
-	/**
-	 * An array of FILE objects representing the loaded files.
-	 * @var array
-	 */
-	private $_files = array();
-
-	public function __construct(array $defaults = array(), array $settings = array())
-	{
-		$this->_defaults = $defaults;
-		// default options
-		$this->settings = new ParameterBag(array(
-							'delimiter'					=> '=',
-							'space_around_delimiters' 	=> true,
-							'linebreak'					=> "\n"
-							));
-		$this->settings->add($settings);
-
-		/*
-		 * OS detection to define the linebreak.
-		 * For Windows we use "\r\n".
-		 * For everything else "\n" is used.
-		 */
-		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$this->settings->set('linebreak', "\r\n");
-		}
-	}
 
 	/**
 	 * Return an associative array containing the instance-wide defaults.
@@ -96,7 +52,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	 */
 	public function sections()
 	{
-		return array_keys($this->_data);
+		return array_keys($this->data);
 	}
 
 	/**
@@ -121,7 +77,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 		}
 
 		if (false === $this->hasSection($section)) {
-			$this->_data[(string) $section] = array();
+			$this->data[(string) $section] = array();
 		}
 		else {
 			throw new DuplicateSectionException($section);
@@ -134,7 +90,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	 */
 	public function hasSection($section)
 	{
-		return isset($this->_data[$section]);
+		return isset($this->data[$section]);
 	}
 
 	/**
@@ -143,7 +99,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	public function options($section)
 	{
 		if (true === $this->hasSection($section)) {
-			return array_keys($this->_data[$section]);
+			return array_keys($this->data[$section]);
 		}
 		else {
 			throw new NoSectionException($section);
@@ -157,7 +113,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	 */
 	public function hasOption($section, $option)
 	{
-		return isset($this->_data[$section][$option]);
+		return isset($this->data[$section][$option]);
 	}
 
 	/**
@@ -166,7 +122,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	public function setOptions($section, array $options = array())
 	{
 		if ($this->hasSection($section)) {
-			$this->_data[$section] = $options;
+			$this->data[$section] = $options;
 		}
 		else {
 			throw new NoSectionException($section);
@@ -202,8 +158,8 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 				// register a new file...
 				$this->_files[] = new File($filename, 'rb');
 				// ... and append configuration
-				$this->_data = array_merge(
-								$this->_data,
+				$this->data = array_merge(
+								$this->data,
 								$this->_read($filename)
 					);
 			}
@@ -217,12 +173,12 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 
 	public function readString($string)
 	{
-		$this->_data = parse_ini_string($string, static::HAS_SECTIONS);
+		$this->data = parse_ini_string($string, static::HAS_SECTIONS);
 	}
 
 	public function readArray(array $array = array())
 	{
-		$this->_data = $array;
+		$this->data = $array;
 	}
 
 	/**
@@ -232,8 +188,8 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	{
 		$filenames = array();
 		foreach ($this->_files as $file) {
-					$this->_data = array_merge(
-							$this->_data,
+					$this->data = array_merge(
+							$this->data,
 							$this->_read($file->getPathname())
 					);
 		}
@@ -245,7 +201,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	public function get($section, $option)
 	{
 		if ($this->hasOption($section, $option)) {
-			return $this->_data[$section][$option];
+			return $this->data[$section][$option];
 		}
 		else {
 			throw new NoOptionException($section, $option);
@@ -307,7 +263,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	public function set($section, $option, $value)
 	{
 		if (true === $this->hasSection($section)) {
-			$this->_data[$section][$option] = (string) $value;
+			$this->data[$section][$option] = (string) $value;
 		}
 		else {
 			throw new NoSectionException($section);
@@ -340,7 +296,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 			// write header tag
 			$file->write(sprintf("[%s]\n", $section));
 			// and then all options in this section
-			foreach ($this->_data[$section] as $key => $value) {
+			foreach ($this->data[$section] as $key => $value) {
 				// option name
 				$line = $key;
 				// space before delimiter?
@@ -366,17 +322,6 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	}
 
 	/**
-	 * Write the stored configuration to the last file successfully parsed
-	 * in $this->read().
-	 */
-	public function save()
-	{
-		$file = end($this->_files);
-
-		return $this->write($file->getPathname());
-	}
-
-	/**
 	 * Remove the specified option from the specified section. If the section
 	 * does not exist, raise NoSectionException. If the option existed to be
 	 * removed, return TRUE; otherwise return FALSE.
@@ -384,8 +329,8 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	public function removeOption($section, $option)
 	{
 		if (true === $this->hasSection($section)) {
-			if (isset($this->_data[$section][$option])) {
-				unset($this->_data[$section][$option]);
+			if (isset($this->data[$section][$option])) {
+				unset($this->data[$section][$option]);
 				return true;
 			}
 			else {
@@ -396,118 +341,6 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 			throw new NoSectionException($section);
 		}
 	}
-
-	/**
-	 * Remove the specified section from the configuration. If the section in
-	 * fact existed, return TRUE. Otherwise return FALSE.
-	 */
-	public function removeSection($section)
-	{
-		if (true === $this->hasSection($section)) {
-			unset($this->_data[$section]);
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-    /**
-     * Removes all parsed data.
-     *
-     * @return void
-     */
-	public function clear()
-	{
-		$this->_data = array();
-	}
-
-	/**
-	 * Output the current configuration representation.
-	 *
-	 * @return void
-	 */
-	public function dump()
-	{
-		var_dump($this->_data);
-	}
-
-    /**
-     * Returns true if the section exists (implements the \ArrayAccess
-     * interface).
-     *
-     * @param string $offset The name of the section
-     *
-     * @return Boolean true if the section exists, false otherwise
-     */
-    public function offsetExists($offset)
-    {
-        return $this->hasSection($offset);
-    }
-
-    /**
-     * Returns the array of options associated with the section (implements
-     * the \ArrayAccess interface).
-     *
-     * @param string $offset The offset of the value to get
-     *
-     * @return mixed The array of options associated with the section
-     */
-    public function offsetGet($offset)
-    {
-		return $this->hasSection($offset) ? $this->_data[$offset] : null;
-    }
-
-    /**
-     * Adds an array of options to the given section (implements the
-     * \ArrayAccess interface).
-     *
-     * @param string $section The name of the section to insert $options.
-     * @param array $options  The array of options to be added
-     */
-    public function offsetSet($offset, $value)
-    {
-		$this->_data[$offset] = $value;
-
-		/*
-		// add the given section if it doesn't exist yet
-		if (!$this->hasSection($offset)) {
-			$this->addSection($offset);
-		}
-
-		$this->setOptions($offset, $value);
-		*/
-    }
-
-    /**
-     * Removes the child with the given name from the form (implements the \ArrayAccess interface).
-     *
-     * @param string $name  The name of the child to be removed
-     */
-    public function offsetUnset($name)
-    {
-        $this->remove($name);
-    }
-
-    /**
-     * Returns the iterator for this group.
-     *
-     * @return \ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->_data);
-    }
-
-    /**
-     * Returns the number of sections (implements the \Countable interface).
-     *
-     * @return integer The number of sections
-     */
-    public function count()
-    {
-        return count($this->_data);
-    }
 }
 
 ?>
