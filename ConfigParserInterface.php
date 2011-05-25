@@ -47,7 +47,9 @@ interface ConfigParserInterface extends \ArrayAccess, \Traversable, \Countable
 
 	public function set($section, $option, $value);
 
-	public function write($filename = null, $space_around_delimiters = true);
+	public function write($filename);
+
+	public function save();
 
 	public function removeOption($section, $option);
 

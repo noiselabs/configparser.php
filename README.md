@@ -27,7 +27,7 @@ You may clone via git:
 
 	$ git clone git://github.com/noisebleed/noiselabs-php-toolkit.gitconfig
 
-or download a tarball either in Gzip o Zip format:
+or download a tarball either in Gzip or Zip format:
 
 	https://github.com/noisebleed/noiselabs-php-toolkit/archives/master
 
@@ -71,7 +71,9 @@ To have Symfony's ClassLoader autoloading our classes create a `autoload.php` fi
 
 	?>
 
-Now using ConfigParser is as simples as:
+### Basic usage
+
+Using ConfigParser is as simples as:
 
 	<?php
 
@@ -98,7 +100,7 @@ Development
 Authors
 -------
 
-* Vítor Brandão [ [email](noisebleed@noiselabs.org) / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org) ]
+* Vítor Brandão [[email](noisebleed@noiselabs.org) / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org)]
 
 Submitting bugs and feature requests
 ------------------------------------

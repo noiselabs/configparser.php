@@ -29,11 +29,18 @@ use NoiseLabs\ToolKit\ConfigParser\Exception\NoSectionException;
  *
  * @note This class does not interpret or write the value-type prefixes
  * used in the Windows Registry extended version of INI syntax.
+ *
+ * @author Vítor Brandão <noisebleed@noiselabs.org>
  */
 Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 {
 	const DEFAULT_SECTION 	= 'DEFAULT';
-	const HAS_SECTIONS 		= true;
+	const HAS_SECTIONS		= true;
+
+	/**
+	 * A set of internal options used when parsing and writing files.
+	 */
+	protected $_options = array();
 
 	/**
 	 * The configuration representation is stored here.
@@ -41,6 +48,10 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	 */
 	private $_data = array();
 
+	/**
+	 *
+	 * @var array
+	 */
 	private $_defaults = array();
 
 	/**
@@ -49,16 +60,37 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	 */
 	private $_files = array();
 
-	public function __construct(array $defaults = array())
+	public function __construct(array $defaults = array(), array $options = array())
 	{
 		$this->_defaults = $defaults;
+		// default options
+		$this->_options = array_merge(
+					array(
+						'delimiter'					=> '=',
+						'space_around_delimiters' 	=> true
+					),
+					$options
+					);
+
+	}
+
+	public function configure($options = array(), $value = null)
+	{
+		if (is_array($options)) {
+			$this->_options = array_merge(
+						$this->_options,
+						$options
+						);
+		}
+		else {
+			$this->_options[(string) $options] = $value;
+		}
 	}
 
 	// from child class
   	public static function getConfig($filename, $has_sections = true, $safemode = false)
   	{
-		$cp = new static();
-		$data = $cp->read($filename);
+
 
     	//$_instance = new self($filename, $has_sections, $safemode);
     	//$_instance->read();
@@ -211,6 +243,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 
 	public function readString($string)
 	{
+		$this->_data = parse_ini_string($string, $this->has_sections);
 	}
 
 	public function readArray(array $array)
@@ -292,8 +325,64 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 		}
 	}
 
-	public function write($filename = NULL, $space_around_delimiters = true)
+	/**
+	 * Write an .ini-format representation of the configuration state
+	 *
+	 * @throws RuntimeException if file is not writable
+	 */
+	public function write($filename)
 	{
+		$file = new File($filename);
+
+		if (!$file->open('cb')) {
+			throw new \RuntimeException('File '.$file->getPathname().' could not be opened for writing');
+			return false;
+		}
+		elseif (!$file->isWritable()) {
+			throw new \RuntimeException('File '.$file->getPathname().' is not writable');
+			return false;
+		}
+
+		// TODO: write default section first
+
+		foreach ($this->sections() as $section) {
+			// write header tag
+			$file->write(sprintf("[%s]\n", $section));
+			// and then all options in this section
+			foreach ($this->_data[$section] as $key => $value) {
+				// option name
+				$line = $key;
+				// space before delimiter?
+				if ($this->_options['space_around_delimiters'] &&
+				$this->_options['delimiter'] != ':') {
+					$line .= ' ';
+				}
+				// insert delimiter
+				$line .= $this->_options['delimiter'];
+				// space after delimiter?
+				if ($this->_options['space_around_delimiters']) {
+					$line .= ' ';
+				}
+				// and finally, option value
+				$line .= $value;
+				// record it for eternity
+				$file->write($line."\n");
+			}
+			$file->write("\n");
+		}
+
+		$file->close();
+	}
+
+	/**
+	 * Write the stored configuration to the last file successfully parsed
+	 * in $this->read().
+	 */
+	public function save()
+	{
+		$file = end($this->_files);
+
+		return $this->write($file->getPathname());
 	}
 
 	/**
@@ -331,174 +420,6 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 			return false;
 		}
 	}
-
-	public function read_($filenames = array())
- 	{
-		if (!is_array($filenames)) {
-			$filenames = array($filenames);
-		}
-
-    	if (is_readable($this->_filepath)) {
-      		$this->_cfg = parse_ini_file($this->_filepath, $this->_has_sections);
-    	}
-  	}
-
-  	/**
-   	 * Get an option value for the named section.
-   	 */
-  	public function get_($section, $option=NULL)
-  	{
-    	if ($this->_has_sections)
-    	{
-      		if ($this->safemode)
-      		{
-        		if ( array_key_exists($section, $this->_cfg) &&
-            		array_key_exists($option, $this->_cfg[$section]) )
-            	{
-          			return $this->_cfg[$section][$option];
-        		}
-        		else
-        		{
-          			return false;
-        		}
-      		}
-      		else
-      		{
-        		return $this->_cfg[$section][$option];
-      		}
-    	}
-    	else
-    	{
-      		// When configured with "no sections" the section becomes the option
-      		$option = $section;
-
-      		if ($this->safemode)
-      		{
-        		if (array_key_exists($option, $this->_cfg))
-        		{
-          			return $this->_cfg[$option];
-        		}
-        		else
-        		{
-          			return false;
-        		}
-      		}
-      		else
-      		{
-        		return $this->_cfg[$option];
-      		}
-    	}
-  	}
-
-  /**
-   * Prints all available sections
-   */
-  public function sections_() {
-    if (!empty($this->_cfg)) {
-      foreach ($section as $this->_cfg) {
-        $this->_sections[] = $section;
-      }
-    }
-    return $this->_sections;
-  }
-
-  /**
-   * Indicates whether the named section is present in the configuration.
-   */
-  public function has_section($section) {
-    if (array_key_exists($section, $this->_cfg)) {
-      return True;
-    }
-    else {
-      return False;
-    }
-  }
-
-  /**
-   * If the given section exists, and contains the given option, return True;
-   * otherwise return False.
-   */
-  public function has_option($section, $option=NULL) {
-    if ( array_key_exists($section, $this->_cfg) &&
-           array_key_exists($option, $this->_cfg[$section]) ) {
-        return True;
-    }
-    else {
-      return False;
-    }
-  }
-
-  public function set_($section, $option, $value=NULL) {
-    if ($this->_has_sections) {
-      if (!array_key_exists($section, $this->_cfg)) {
-        $this->_cfg[] = $section;
-      }
-      $this->_cfg[$section][$option] = $value;
-    }
-    else {
-      // "shift" arguments
-      // Note: this is *really* lame
-      $value = $option;
-      $option = $section;
-      $this->_cfg[$option] = $value;
-    }
-  }
-
-	/**
-	 * Write a representation of the configuration to the specified
-	 * filename. This representation can be parsed by a future read() call.
-	 *
-	 * If $space_around_delimiters is true, delimiters between keys and
-	 * values are surrounded by spaces.
-	 *
-	 * When $filename is NULL, the last file loaded (if any) is used.
-	 */
-	public function write_($filename = NULL, $space_around_delimiters = true)
-	{
-
-    if ($this->_has_sections) {
-        foreach ($this->_cfg as $key=>$elem) {
-            $content .= "\n[".$key."]\n";
-            foreach ($elem as $key2=>$elem2) {
-                if(is_array($elem2))
-                {
-                    for($i=0;$i<count($elem2);$i++)
-                    {
-                        $content .= $key2."[] = ".$elem2[$i]."\n";
-                    }
-                }
-                else if($elem2=="") $content .= $key2." = \n";
-                else $content .= $key2." = ".$elem2."\n";
-            }
-        }
-    }
-    else {
-        foreach ($this->_cfg as $key=>$elem) {
-            if (is_array($elem)) {
-                for($i=0;$i<count($elem);$i++) {
-                    $content .= $key."[] = ".$elem[$i]."\n";
-                }
-            }
-            else {
-              if ($elem=="") {
-                $content .= $key." = \n";
-              }
-              else {
-                $content .= $key." = ".$elem."\n";
-              }
-            }
-        }
-    }
-
-    if (!$handle = fopen($this->_filepath, 'w')) {
-        return false;
-    }
-    if (!fwrite($handle, $content)) {
-        return false;
-    }
-    fclose($handle);
-    return true;
-  }
 
 	/**
 	 * Output the current configuration representation.

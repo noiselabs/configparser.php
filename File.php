@@ -58,9 +58,9 @@ class File
 	 * the call to this function fails (as is the case with 'x'). The file
 	 * pointer is positioned on the beginning of the file. This may be useful
 	 * if it's desired to get an advisory lock (see flock()) before attempting
-	 * to modify the file, as using 'w' could truncate the file before the lock
-	 * was obtained (if truncation is desired, ftruncate() can be used after
-	 * the lock is requested).
+	 * to modify the file, as using 'w' could truncate the file before the
+	 * lock was obtained (if truncation is desired, ftruncate() can be used
+	 * after the lock is requested).
 	 *
 	 * 'c+': Open the file for reading and writing; otherwise it has the
 	 * same behavior as 'c'.
@@ -73,16 +73,45 @@ class File
 		$this->_mode = $mode;
 	}
 
-	public function open()
+	public function getPathname()
 	{
-		$this->_handle = fopen($this->_path);
+		return $this->_path;
+	}
+
+	public function open($mode = null)
+	{
+		if (!isset($mode)) {
+			$mode = $this->_mode;
+		}
+
+		$this->_handle = fopen($this->_path, $mode);
 
 		return $this->_handle;
+	}
+
+	public function write($content)
+	{
+		return ($this->_handle) ? fwrite($this->_handle, $content) : false;
 	}
 
 	public function close()
 	{
 		return fclose($this->_handle);
+	}
+
+	public function isReadable()
+	{
+		return is_readable($this->_path);
+	}
+
+	public function isWritable()
+	{
+		return is_writable($this->_path);
+	}
+
+	public function remove()
+	{
+		return unlink($this->_path);
 	}
 }
 
