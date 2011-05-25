@@ -29,7 +29,7 @@ You may clone via git:
 
 or download a tarball either in Gzip o Zip format:
 
-	URL: https://github.com/noisebleed/noiselabs-php-toolkit/archives/master
+	https://github.com/noisebleed/noiselabs-php-toolkit/archives/master
 
 Documentation
 ==============
@@ -38,13 +38,13 @@ Basic instructions on the usage of the library are presented below.
 
 API-level documentation is available under the `doc` folder in `doc/docblox/`.
 
-About the INI files
+Parsed INI files
 --------------------
 
-The INI files read by ConfigParser consists of sections, lead by a "[section]" header, and followed by "name = value" or "name: value" entries, with continuations and such in the style of RFC 822.
+The INI files read by ConfigParser consists of sections, lead by a `[section]` header, and followed by `name = value` or `name: value` entries, with continuations and such in the style of RFC 822.
 
 The option values can contain format strings which refer to other values in
-the same section, or values in a special [DEFAULT] section.
+the same section, or values in a special `[DEFAULT]` section.
 
 Usage
 -----
@@ -98,9 +98,14 @@ Development
 Authors
 -------
 
-* Vítor Brandão - [email](noisebleed@noiselabs.org) / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org)
+* Vítor Brandão [ [email](noisebleed@noiselabs.org) / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org) ]
 
 Submitting bugs and feature requests
 ------------------------------------
 
 Bugs and feature requests are tracked on [GitHub](https://github.com/noiselabs/noiselabs-php-toolkit/issues)
+
+Acknowledgements
+-----------------
+
+Python's [configparser](http://docs.python.org/dev/library/configparser.html) library was used as a source of inspiration for this library, including documentation and docblocks.
