@@ -14,6 +14,9 @@ namespace NoiseLabs\ToolKit\ConfigParser;
 
 class File
 {
+	/**
+	 * Pathname
+	 */
 	protected $_path;
 
 	/**

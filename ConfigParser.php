@@ -15,6 +15,7 @@ namespace NoiseLabs\ToolKit\ConfigParser;
 use NoiseLabs\ToolKit\ConfigParser\File;
 use NoiseLabs\ToolKit\ConfigParser\Exception\DuplicateSectionException;
 use NoiseLabs\ToolKit\ConfigParser\Exception\NoSectionException;
+use NoiseLabs\ToolKit\ParameterBag;
 
 /**
  * The ConfigParser class implements a basic configuration language which
@@ -40,7 +41,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	/**
 	 * A set of internal options used when parsing and writing files.
 	 */
-	protected $_options = array();
+	public $settings = array();
 
 	/**
 	 * The configuration representation is stored here.
@@ -60,59 +61,26 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 	 */
 	private $_files = array();
 
-	public function __construct(array $defaults = array(), array $options = array())
+	public function __construct(array $defaults = array(), array $settings = array())
 	{
 		$this->_defaults = $defaults;
 		// default options
-		$this->_options = array_merge(
-					array(
-						'delimiter'					=> '=',
-						'space_around_delimiters' 	=> true
-					),
-					$options
-					);
+		$this->settings = new ParameterBag(array(
+							'delimiter'					=> '=',
+							'space_around_delimiters' 	=> true,
+							'linebreak'					=> "\n"
+							));
+		$this->settings->add($settings);
 
-	}
-
-	public function configure($options = array(), $value = null)
-	{
-		if (is_array($options)) {
-			$this->_options = array_merge(
-						$this->_options,
-						$options
-						);
-		}
-		else {
-			$this->_options[(string) $options] = $value;
+		/*
+		 * OS detection to define the linebreak.
+		 * For Windows we use "\r\n".
+		 * For everything else "\n" is used.
+		 */
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+			$this->settings->set('linebreak', "\r\n");
 		}
 	}
-
-	// from child class
-  	public static function getConfig($filename, $has_sections = true, $safemode = false)
-  	{
-
-
-    	//$_instance = new self($filename, $has_sections, $safemode);
-    	//$_instance->read();
-
-    	//return $_instance;
-  	}
-
-  	/* Do not allow an explicit call of the constructor: $c1 = new ConfigParser(); */
-  	/*public function __construct($filename, $has_sections, $safemode)
-  	{
-		$path_to_etc = Application::getInstance()->getConfig()->get('path.etc');
-
-    	$this->_has_sections = $has_sections;
-    	$this->safemode = $safemode;
-
-    	if ($filename[0] == '/') {
-      		$this->_filepath = $filename;
-    	}
-    	else {
-    		$this->_filepath = sprintf("%s/%s", $path_to_etc, $filename);
-    	}
-  	}*/
 
 	/**
 	 * Return an associative array containing the instance-wide defaults.
@@ -205,6 +173,11 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 		}
 	}
 
+	protected function _read($filename)
+	{
+		return parse_ini_file($filename, static::HAS_SECTIONS);
+	}
+
 	/**
 	 * Attempt to read and parse a list of filenames, returning a list of
 	 * filenames which were successfully parsed. If filenames is a string, it
@@ -231,7 +204,7 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 				// ... and append configuration
 				$this->_data = array_merge(
 								$this->_data,
-								parse_ini_file($filename, static::HAS_SECTIONS)
+								$this->_read($filename)
 					);
 			}
 		}
@@ -239,15 +212,31 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 
 	public function readFile($filehandler)
 	{
+		trigger_error(__METHOD__.' is not implemented yet');
 	}
 
 	public function readString($string)
 	{
-		$this->_data = parse_ini_string($string, $this->has_sections);
+		$this->_data = parse_ini_string($string, static::HAS_SECTIONS);
 	}
 
-	public function readArray(array $array)
+	public function readArray(array $array = array())
 	{
+		$this->_data = $array;
+	}
+
+	/**
+	 * Re-read configuration from all successfully parsed files.
+	 */
+	public function reload()
+	{
+		$filenames = array();
+		foreach ($this->_files as $file) {
+					$this->_data = array_merge(
+							$this->_data,
+							$this->_read($file->getPathname())
+					);
+		}
 	}
 
 	/**
@@ -323,6 +312,8 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 		else {
 			throw new NoSectionException($section);
 		}
+
+		return $this;
 	}
 
 	/**
@@ -353,22 +344,22 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 				// option name
 				$line = $key;
 				// space before delimiter?
-				if ($this->_options['space_around_delimiters'] &&
-				$this->_options['delimiter'] != ':') {
+				if ($this->settings->get('space_around_delimiters') &&
+				$this->settings->get('delimiter') != ':') {
 					$line .= ' ';
 				}
 				// insert delimiter
-				$line .= $this->_options['delimiter'];
+				$line .= $this->settings->get('delimiter');
 				// space after delimiter?
-				if ($this->_options['space_around_delimiters']) {
+				if ($this->settings->get('space_around_delimiters')) {
 					$line .= ' ';
 				}
 				// and finally, option value
 				$line .= $value;
 				// record it for eternity
-				$file->write($line."\n");
+				$file->write($line.$this->settings->get('linebreak'));
 			}
-			$file->write("\n");
+			$file->write($this->settings->get('linebreak'));
 		}
 
 		$file->close();
@@ -421,8 +412,20 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
 		}
 	}
 
+    /**
+     * Removes all parsed data.
+     *
+     * @return void
+     */
+	public function clear()
+	{
+		$this->_data = array();
+	}
+
 	/**
 	 * Output the current configuration representation.
+	 *
+	 * @return void
 	 */
 	public function dump()
 	{
@@ -464,12 +467,16 @@ Class ConfigParser implements \IteratorAggregate, ConfigParserInterface
      */
     public function offsetSet($offset, $value)
     {
+		$this->_data[$offset] = $value;
+
+		/*
 		// add the given section if it doesn't exist yet
 		if (!$this->hasSection($offset)) {
 			$this->addSection($offset);
 		}
 
 		$this->setOptions($offset, $value);
+		*/
     }
 
     /**
