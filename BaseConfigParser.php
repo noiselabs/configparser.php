@@ -297,6 +297,11 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		$this->remove($name);
 	}
+
+	protected function _throwExceptions()
+	{
+		return (false === $this->settings->get('throw_exceptions')) ? false : true;
+	}
 }
 
 ?>

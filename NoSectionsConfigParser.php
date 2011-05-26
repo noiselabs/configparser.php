@@ -38,7 +38,7 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 	 */
 	public function hasOption($option)
 	{
-		return isset($this->data[$option]);
+		return isset($this->_sections[$option]);
 	}
 
 	/**
@@ -59,14 +59,20 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 	public function get($option, $fallback = null)
 	{
 		if ($this->hasOption($option)) {
-			return $this->_sections[$section][$option];
+			return $this->_sections[$option];
 		}
 		// try $fallback
 		elseif (isset($fallback)) {
 			return $fallback;
 		}
 		else {
-			throw new NoOptionException('<None>', $option);
+			if ($this->_throwExceptions()) {
+				throw new NoOptionException('<None>', $option);
+			}
+			else {
+				error_log(sprintf("Option '%s' wasn't found", $option));
+				return null;
+			}
 		}
 	}
 
@@ -97,15 +103,22 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 	 */
 	public function getBoolean($option, $fallback = null)
 	{
-		if (is_string($value = $this->get($option))) {
+		if (is_string($value = $this->get($option, $fallback))) {
 			$value = strtolower($value);
 		}
 
-		if (in_array($value, $this->_boolean_states)) {
+		if (isset($this->_boolean_states[$value])) {
 			return $this->_boolean_states[$value];
 		}
 		else {
-			throw new \UnexpectedValueException("Option '".$option."' is not a boolean");
+			$error_msg = "Option '".$option."' is not a boolean";
+			if ($this->_throwExceptions()) {
+				throw new \UnexpectedValueException($error_msg);
+			}
+			else {
+				error_log($error_msg);
+				return null;
+			}
 		}
 	}
 
