@@ -11,7 +11,7 @@ The ConfigParser class provides a way to read, interpret and write configuration
 Requirements
 ============
 
-* PHP 5.3.2 and up
+* PHP 5.3.2 and up.
 
 License
 ========
@@ -41,7 +41,7 @@ API-level documentation is available under the `doc` folder in `doc/docblox/`.
 Parsed INI files
 --------------------
 
-The INI files read by ConfigParser consists of sections, lead by a `[section]` header, and followed by `name = value` or `name: value` entries, with continuations and such in the style of RFC 822.
+The INI files read by ConfigParser consists of sections, lead by a `[section]` header, and followed by `name = value`  entries.
 
 The option values can contain format strings which refer to other values in
 the same section, or values in a special `[DEFAULT]` section.
@@ -117,6 +117,8 @@ Because it implements `ArrayAccess` the ConfigParser object can be used in a str
 	?>
 
 
+
+Supported Datatypes
 Development
 ===========
 
