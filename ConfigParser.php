@@ -16,6 +16,7 @@ use NoiseLabs\ToolKit\ConfigParser\BaseConfigParser;
 use NoiseLabs\ToolKit\ConfigParser\File;
 use NoiseLabs\ToolKit\ConfigParser\Exception\DuplicateSectionException;
 use NoiseLabs\ToolKit\ConfigParser\Exception\NoSectionException;
+use NoiseLabs\ToolKit\ConfigParser\Exception\NoOptionException;
 
 /**
  * The ConfigParser class implements a basic configuration language which
@@ -182,7 +183,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 * A convenience method which coerces the option in the specified section
 	 * to an integer.
 	 */
-	public function getInt($section, $option)
+	public function getInt($section, $option, $fallback = null)
 	{
 		return (int) $this->get($section, $option);
 	}
@@ -191,7 +192,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 * A convenience method which coerces the option in the specified section
 	 * to a floating point number.
 	 */
-	public function getFloat($section, $option)
+	public function getFloat($section, $option, $fallback = null)
 	{
 		return (float) $this->get($section, $option);
 	}
@@ -204,7 +205,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 * These string values are checked in a case-insensitive manner. Any
 	 * other value will cause it to raise ValueException.
 	 */
-	public function getBoolean($section, $option)
+	public function getBoolean($section, $option, $fallback = null)
 	{
 		if (is_string($value = $this->get($section, $option))) {
 			$value = strtolower($value);
