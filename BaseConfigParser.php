@@ -12,7 +12,7 @@
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
-use NoiseLabs\ToolKit\ParameterBag;
+use NoiseLabs\ToolKit\ConfigParser\ParameterBag;
 
 abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 {
