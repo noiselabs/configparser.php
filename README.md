@@ -21,11 +21,11 @@ ConfigParser is licensed under the BSD-2 License. See the LICENSE file for detai
 Installation
 ============
 
-Cloning/downloading from [GitHub] is the only available method to get this library so far.
+Cloning/downloading from [GitHub](https://github.com/noiselabs/noiselabs-php-toolkit) is, so far, the only available method to get this library.
 
 You may clone via git:
 
-	$ git clone git://github.com/noisebleed/noiselabs-php-toolkit.gitconfig
+	$ git clone git://github.com/noiselabs/noiselabs-php-toolkit.git
 
 or download a tarball either in Gzip or Zip format:
 
@@ -51,7 +51,7 @@ Usage
 
 ### Autoloading classes (optional)
 
-ConfigParser makes use of PHP namespaces and as such the usage of a autoloader libray is recommended. Symfony provides a great class loader available on [GitHub](https://github.com/symfony/ClassLoader).
+ConfigParser makes use of PHP namespaces and as such the usage of a autoloader libray is recommended. [Symfony](https://github.com/symfony/symfony) provides a great class loader available on [GitHub](https://github.com/symfony/ClassLoader).
 
 To have Symfony's ClassLoader autoloading our classes create a `autoload.php` file  and included it at the top of your scripts.
 
@@ -100,7 +100,7 @@ Development
 Authors
 -------
 
-* Vítor Brandão [[email](noisebleed@noiselabs.org) / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org)]
+* Vítor Brandão [ <noisebleed@noiselabs.org> / [@noiselabs](http://twitter.com/noiselabs) / [Blog](http://blog.noiselabs.org) ]
 
 Submitting bugs and feature requests
 ------------------------------------
