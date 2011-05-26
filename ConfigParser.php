@@ -40,14 +40,6 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	const HAS_SECTIONS		= true;
 
 	/**
-	 * Return an associative array containing the instance-wide defaults.
-	 */
-	public function defaults()
-	{
-		return $this->_defaults;
-	}
-
-	/**
 	 * Return a list of the sections available; the default section is not
 	 * included in the list.
 	 */
@@ -91,7 +83,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function hasSection($section)
 	{
-		return isset($this->_sections[$section]);
+		return (isset($this->_sections[$section]) && is_array($this->_sections[$section]));
 	}
 
 	/**
@@ -126,23 +118,30 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			$this->_sections[$section] = $options;
 		}
 		else {
-			throw new NoSectionException($section);
+			if ($this->_throwExceptions()) {
+				throw new NoSectionException($section);
+			}
+			else {
+				error_log("Section '".$section."' doesn't exist");
+				return null;
+			}
 		}
 	}
 
-	public function readFile($filehandler)
+	public function read($filenames = array())
 	{
-		trigger_error(__METHOD__.' is not implemented yet');
-	}
+		parent::read($filenames);
 
-	public function readString($string)
-	{
-		$this->_sections = parse_ini_string($string, static::HAS_SECTIONS);
-	}
+		// move the DEFAULT section to $defaults
+		if (isset($this->_sections[static::DEFAULT_SECTION])) {
+			$this->_defaults = array_replace(
+								$this->_defaults,
+								$this->_sections[static::DEFAULT_SECTION]
+								);
+			unset($this->_sections[static::DEFAULT_SECTION]);
 
-	public function readArray(array $array = array())
-	{
-		$this->_sections = $array;
+			var_dump($this->_defaults);
+		}
 	}
 
 	/**
@@ -237,11 +236,40 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 		return $this;
 	}
 
+	protected function _buildOptionValueLine($key, $value)
+	{
+		// option name
+		$line = $key;
+		// space before delimiter?
+		if ($this->settings->get('space_around_delimiters') &&
+		$this->settings->get('delimiter') != ':') {
+			$line .= ' ';
+		}
+		// insert delimiter
+		$line .= $this->settings->get('delimiter');
+		// space after delimiter?
+		if ($this->settings->get('space_around_delimiters')) {
+			$line .= ' ';
+		}
+		// and finally, option value
+		$line .= $value;
+		// record it for eternity
+		return $line.$this->settings->get('linebreak');
+	}
+
+
 	protected function _buildOutputString()
 	{
 		$output = '';
 
 		// TODO: write default section first
+		if (!empty($this->_defaults)) {
+			$output .= sprintf("[%s]\n", static::DEFAULT_SECTION);
+			foreach ($this->_defaults as $key => $value) {
+				$output .= $this->_buildOptionValueLine($key, $value);
+			}
+			$output .= $this->settings->get('linebreak');
+		}
 
 		foreach ($this->sections() as $section) {
 			if (!is_array($this->_sections[$section])) {
@@ -251,23 +279,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			$output .= sprintf("[%s]\n", $section);
 			// and then all options in this section
 			foreach ($this->_sections[$section] as $key => $value) {
-				// option name
-				$line = $key;
-				// space before delimiter?
-				if ($this->settings->get('space_around_delimiters') &&
-				$this->settings->get('delimiter') != ':') {
-					$line .= ' ';
-				}
-				// insert delimiter
-				$line .= $this->settings->get('delimiter');
-				// space after delimiter?
-				if ($this->settings->get('space_around_delimiters')) {
-					$line .= ' ';
-				}
-				// and finally, option value
-				$line .= $value;
-				// record it for eternity
-				$output .= $line.$this->settings->get('linebreak');
+				$output .= $this->_buildOptionValueLine($key, $value);
 			}
 			$output .= $this->settings->get('linebreak');
 		}

@@ -16,6 +16,8 @@ use NoiseLabs\ToolKit\ConfigParser\ParameterBag;
 
 abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 {
+	const VERSION = '0.1.0';
+
 	/**
 	 * A set of internal options used when parsing and writing files.
 	 *
@@ -31,7 +33,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	 *
 	 *  'linebreak':
 	 *		The linebreak to use.
-	 *		Defaults to '\r\n' on Windows OS and '\n' or every other OS.
+	 *		Defaults to '\r\n' on Windows OS and '\n' on every other OS.
 	 *
 	 *  'interpolation':
 	 *		@todo: Describe the interpolation mecanism.
@@ -86,6 +88,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 							'delimiter'					=> '=',
 							'space_around_delimiters' 	=> true,
 							'linebreak'					=> "\n",
+							'throw_exceptions'			=> true,
 							'interpolation'				=> false
 							));
 
@@ -101,6 +104,14 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 		}
 
 		$this->settings->add($settings);
+	}
+
+	/**
+	 * Return an associative array containing the instance-wide defaults.
+	 */
+	public function defaults()
+	{
+		return $this->_defaults;
 	}
 
 	/**
@@ -136,12 +147,27 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 				// register a new file...
 				$this->_files[] = new File($filename, 'rb');
 				// ... and append configuration
-				$this->_sections = array_merge(
+				$this->_sections = array_replace(
 								$this->_sections,
 								$this->_read($filename)
 					);
 			}
 		}
+	}
+
+	public function readFile($filehandler)
+	{
+		trigger_error(__METHOD__.' is not implemented yet');
+	}
+
+	public function readString($string)
+	{
+		$this->_sections = parse_ini_string($string, static::HAS_SECTIONS, INI_SCANNER_RAW);
+	}
+
+	public function readArray(array $array = array())
+	{
+		$this->_sections = $array;
 	}
 
 	/**
@@ -170,12 +196,24 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 		$file = new File($filename);
 
 		if (!$file->open('cb')) {
-			throw new \RuntimeException('File '.$file->getPathname().' could not be opened for writing');
-			return false;
+			$errmsg = 'Unable to write configuration as file '.$file->getPathname().' could not be opened for writing';
+			if ($this->_throwExceptions()) {
+				throw new \RuntimeException($errmsg);
+			}
+			else {
+				error_log($errmsg);
+				return false;
+			}
 		}
 		elseif (!$file->isWritable()) {
-			throw new \RuntimeException('File '.$file->getPathname().' is not writable');
-			return false;
+			$errmsg = 'Unable to write configuration as file '.$file->getPathname().' is not writable';
+			if ($this->_throwExceptions()) {
+				throw new \RuntimeException($errmsg);
+			}
+			else {
+				error_log($errmsg);
+				return false;
+			}
 		}
 
 		$file->write($this->_buildOutputString());

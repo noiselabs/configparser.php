@@ -113,12 +113,6 @@ Using ConfigParser is as simples as:
 
 Because it implements `ArrayAccess` the ConfigParser object can be used in a straightforward way:
 
-	<?php
-
-	namespace Your\Namespace;
-
-	use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
-
 	$cfg = new ConfigParser();
 
 	$cfg->read('/home/user/.config/server.cfg');
@@ -128,6 +122,47 @@ Because it implements `ArrayAccess` the ConfigParser object can be used in a str
 
 	// set options for the 'github.com' section
 	$cfg['github.com'] = array('user', 'john');
+
+	?>
+
+### Iterate
+
+Because ConfigParser implements `IteratorAggregate` it is possible to use `foreach` to loop over the configuration.
+
+	$cfg = new ConfigParser();
+
+	foreach ($cfg as $section => $name) {
+		echo sprintf("Section '%s' has the following options: %s\n",
+					$section,
+					implode(", ", $cfg->options($section))
+					);
+	}
+
+### Loading multiple files at once
+
+This is designed so that you can specify a list of potential configuration file locations (for example, the current directory, the user’s home directory, and some system-wide directory), and all existing configuration files in the array will be read.
+
+	$cfg = new ConfigParser();
+
+	$cfg->read(array('/etc/myapp.cfg', '/usr/local/etc/myapp.cfg', '/home/user/.config/myapp.cfg');
+
+### Parsing files without sections
+
+ConfigParser was designed to work with INI files with section tags. For simple files with just `option = value` entries `NoSectionsConfigParser` can be used.
+
+	<?php
+
+	namespace Your\Namespace;
+
+	use NoiseLabs\ToolKit\ConfigParser\NoSectionsConfigParser;
+
+	$cfg = NoSectionsConfigParser();
+
+	$cfg->read('/tmp/sectionless.cfg');
+
+	$cfg->set('server', '192.168.1.1.');
+
+	echo $cfg->get('server');
 
 	?>
 
@@ -159,6 +194,39 @@ Please note that default values have precedence over fallback values. For instan
 
 	echo $cfg->get('topsecret.server.com', 'CompressionLevel', '3');
 	// prints 9
+
+Supported INI File Structure
+----------------------------
+
+A configuration file consists of sections, each led by a `[section]` header, followed by key/value entries separated by a specific string `=`.
+
+Leading and trailing whitespace is removed from keys and values. Values can be omitted, these will be stored as an empty string.
+
+Configuration files may include comments, prefixed by `;`. Hash marks (`#` ) may no longer be used as comments and will throw a deprecation warning if used.
+
+Customizing Parser Behaviour
+----------------------------
+
+### Loading a set of default options/values
+
+You may create an array of key-value pairs and pass them to the constructor as the first argument. These option/values will be initially put in the DEFAULT section. This makes for an elegant way to support concise configuration files that don’t specify values which are the same as the documented default.
+
+	// define some defaults values
+	$defaults = array(
+					'Compression' 		=> 'yes',
+					'CompressionLevel' 	=> 9
+					);
+
+	$cfg = new ConfigParser($defaults);
+
+### Advanced configuration
+
+ConfigParser includes a small set of internal options to change the way it writes to configuration files or if exceptions are to be raised.
+
+* **delimiter** - The delimiter character to use between keys and values (when writing). Defaults to `= `.
+*  **space_around_delimiters** - Inserts (or not) a blank space between keys/values and delimiters. Defaults to `TRUE`.
+*  **linebreak** - The linebreak to use. Defaults to `'\r\n'` on Windows OS and `'\n'` on every other OS (Linux, Mac).
+* **throw_exceptions** - You may disable exceptions here. If set to false ConfigParser will write the error log instead and return `NULL`. Defaults to `TRUE`.
 
 Development
 ===========
