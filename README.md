@@ -73,6 +73,21 @@ To have Symfony's ClassLoader autoloading our classes create a `autoload.php` fi
 
 ### Basic usage
 
+First take the following INI file as an example:
+
+	[DEFAULT]
+	ServerAliveInterval = 45
+	Compression = yes
+	CompressionLevel = 9
+	ForwardX11 = yes
+
+	[github.com]
+	user = noiselabs
+
+	[topsecret.server.com]
+	Port = 50022
+	ForwardX11 = no
+
 Using ConfigParser is as simples as:
 
 	<?php
@@ -84,13 +99,13 @@ Using ConfigParser is as simples as:
 	$cfg = new ConfigParser();
 
 	// parse file
-	$cfg->read('/home/user/.gitconfig');
+	$cfg->read('/home/user/.config/server.cfg.sample');
 
 	// modify a value (section, option, value)
-	$cfg->set('color', 'pager', 'true');
+	$cfg->set('github.com', 'user', 'john');
 
 	// and save it (leave empty to use the last file parsed)
-	$cfg->write('/home/user/.gitconfig-changed');
+	$cfg->write('/home/user/.config/server.cfg');
 
 	?>
 
@@ -106,19 +121,45 @@ Because it implements `ArrayAccess` the ConfigParser object can be used in a str
 
 	$cfg = new ConfigParser();
 
-	$cfg->read('/home/user/.gitconfig');
+	$cfg->read('/home/user/.config/server.cfg');
 
 	// get values
-	echo $cfg['color']['pager'];
+	echo $cfg['github.com']['user'];
 
-	// set options for the 'color' section
-	$cfg['color'] = array('pager', 'false');
+	// set options for the 'github.com' section
+	$cfg['github.com'] = array('user', 'john');
 
 	?>
 
+### Supported Datatypes
 
+ConfigParser do not guess datatypes of values in configuration files, always storing them internally as strings. This allows reading entries like `pager = false` and keeping values as it is (without any kind of boolean parsing).
 
-Supported Datatypes
+This means that if you need other datatypes, you should convert on your own, or use one of these methods:
+
+* Integers:
+
+		$cfg->getInt('topsecret.server.com', 'Port');
+
+* Floats:
+
+		$cfg->getFloat('topsecret.server.com', 'CompressionLevel');
+
+* Booleans:
+
+		$cfg->getBoolean('topsecret.server.com', 'ForwardX11');
+
+### Fallback Values
+
+When using `get()` to pull a value from the configuration you may provide a fallback value in case that option doesn't exist.
+
+	// API: ConfigParser::get($section, $option, $fallback)
+
+Please note that default values have precedence over fallback values. For instance, in our example the 'CompressionLevel' key was specified only in the 'DEFAULT' section. If we try to get it from the section 'topsecret.server.com', we will always get the default, even if we specify a fallback:
+
+	echo $cfg->get('topsecret.server.com', 'CompressionLevel', '3');
+	// prints 9
+
 Development
 ===========
 

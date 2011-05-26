@@ -178,11 +178,32 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 
 	/**
 	 * Get an option value for the named section.
+	 * If the option doesn't exist in the configuration $defaults is used.
+	 * If $defaults doesn't have this option too then we look for the
+	 * $fallback parameter.
+	 * If everything fails throw a NoOptionException.
+	 *
+	 * @param $section 	Section name
+	 * @param $option 	Option name
+	 * @param $fallback A fallback value to use if the option isn't found in
+	 * 					the configuration and $defaults.
+	 *
+	 * @return Option value (if available)
+	 * @throws NoOptionException Couldn't find the desired option in the
+	 * configuration, $defaults or as a fallback value.
 	 */
-	public function get($section, $option)
+	public function get($section, $option, $fallback = null)
 	{
 		if ($this->hasOption($section, $option)) {
 			return $this->_sections[$section][$option];
+		}
+		// try $defaults
+		elseif (isset($this->_defaults[$option])) {
+			return $this->_defaults[$option];
+		}
+		// try $fallback
+		elseif (isset($fallback)) {
+			return $fallback;
 		}
 		else {
 			throw new NoOptionException($section, $option);
