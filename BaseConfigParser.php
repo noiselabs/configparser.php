@@ -18,6 +18,24 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
 	 * A set of internal options used when parsing and writing files.
+	 *
+	 * Known settings:
+	 *
+	 *  'delimiter':
+	 * 		The delimiter character to use between keys and values.
+	 *		Defaults to '='.
+	 *
+	 *  'space_around_delimiters':
+	 *		Put a blank space between keys/values and delimiters?
+	 *		Defaults to TRUE.
+	 *
+	 *  'linebreak':
+	 *		The linebreak to use.
+	 *		Defaults to '\r\n' on Windows OS and '\n' or every other OS.
+	 *
+	 *  'interpolation':
+	 *		@todo: Describe the interpolation mecanism.
+	 *		Defaults to FALSE.
 	 */
 	public $settings = array();
 
@@ -25,31 +43,30 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 	 *
 	 * @var array
 	 */
-	private $_defaults = array();
+	protected $_defaults = array();
 
 	/**
 	 * The configuration representation is stored here.
 	 * @var array
 	 */
-	private $data = array();
+	protected $_sections = array();
 
 	/**
 	 * An array of FILE objects representing the loaded files.
 	 * @var array
 	 */
-	private $_files = array();
+	protected $_files = array();
 
 	public function __construct(array $defaults = array(), array $settings = array())
 	{
-		$this->data = array();
 		$this->_defaults = $defaults;
 		// default options
 		$this->settings = new ParameterBag(array(
 							'delimiter'					=> '=',
 							'space_around_delimiters' 	=> true,
-							'linebreak'					=> "\n"
+							'linebreak'					=> "\n",
+							'interpolation'				=> false
 							));
-		$this->settings->add($settings);
 
 		/*
 		 * OS detection to define the linebreak.
@@ -59,6 +76,8 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 			$this->settings->set('linebreak', "\r\n");
 		}
+
+		$this->settings->add($settings);
 	}
 
 	/**
@@ -68,7 +87,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function getIterator()
 	{
-		return new \ArrayIterator($this->data);
+		return new \ArrayIterator($this->_sections);
 	}
 
 	/**
@@ -78,7 +97,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 	*/
 	public function count()
 	{
-		return count($this->data);
+		return count($this->_sections);
 	}
 
 	/**
@@ -99,7 +118,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
      */
 	public function clear()
 	{
-		$this->data = array();
+		$this->_sections = array();
 	}
 
 	/**
@@ -109,7 +128,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	public function dump()
 	{
-		var_dump($this->data);
+		var_dump($this->_sections);
 	}
 
 	/**
@@ -119,7 +138,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 	public function removeSection($section)
 	{
 		if (true === $this->hasSection($section)) {
-			unset($this->data[$section]);
+			unset($this->_sections[$section]);
 			return true;
 		}
 		else {
@@ -150,7 +169,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function offsetGet($offset)
     {
-		return $this->hasSection($offset) ? $this->data[$offset] : null;
+		return $this->hasSection($offset) ? $this->_sections[$offset] : null;
     }
 
     /**
@@ -162,7 +181,7 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function offsetSet($offset, $value)
     {
-		$this->data[$offset] = $value;
+		$this->_sections[$offset] = $value;
     }
 
 	/**

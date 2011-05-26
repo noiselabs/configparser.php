@@ -52,7 +52,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function sections()
 	{
-		return array_keys($this->data);
+		return array_keys($this->_sections);
 	}
 
 	/**
@@ -77,7 +77,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 		}
 
 		if (false === $this->hasSection($section)) {
-			$this->data[(string) $section] = array();
+			$this->_sections[(string) $section] = array();
 		}
 		else {
 			throw new DuplicateSectionException($section);
@@ -90,7 +90,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function hasSection($section)
 	{
-		return isset($this->data[$section]);
+		return isset($this->_sections[$section]);
 	}
 
 	/**
@@ -99,7 +99,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	public function options($section)
 	{
 		if (true === $this->hasSection($section)) {
-			return array_keys($this->data[$section]);
+			return array_keys($this->_sections[$section]);
 		}
 		else {
 			throw new NoSectionException($section);
@@ -113,7 +113,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function hasOption($section, $option)
 	{
-		return isset($this->data[$section][$option]);
+		return isset($this->_sections[$section][$option]);
 	}
 
 	/**
@@ -122,7 +122,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	public function setOptions($section, array $options = array())
 	{
 		if ($this->hasSection($section)) {
-			$this->data[$section] = $options;
+			$this->_sections[$section] = $options;
 		}
 		else {
 			throw new NoSectionException($section);
@@ -158,8 +158,8 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 				// register a new file...
 				$this->_files[] = new File($filename, 'rb');
 				// ... and append configuration
-				$this->data = array_merge(
-								$this->data,
+				$this->_sections = array_merge(
+								$this->_sections,
 								$this->_read($filename)
 					);
 			}
@@ -173,12 +173,12 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 
 	public function readString($string)
 	{
-		$this->data = parse_ini_string($string, static::HAS_SECTIONS);
+		$this->_sections = parse_ini_string($string, static::HAS_SECTIONS);
 	}
 
 	public function readArray(array $array = array())
 	{
-		$this->data = $array;
+		$this->_sections = $array;
 	}
 
 	/**
@@ -188,8 +188,8 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	{
 		$filenames = array();
 		foreach ($this->_files as $file) {
-					$this->data = array_merge(
-							$this->data,
+					$this->_sections = array_merge(
+							$this->_sections,
 							$this->_read($file->getPathname())
 					);
 		}
@@ -201,7 +201,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	public function get($section, $option)
 	{
 		if ($this->hasOption($section, $option)) {
-			return $this->data[$section][$option];
+			return $this->_sections[$section][$option];
 		}
 		else {
 			throw new NoOptionException($section, $option);
@@ -263,7 +263,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	public function set($section, $option, $value)
 	{
 		if (true === $this->hasSection($section)) {
-			$this->data[$section][$option] = (string) $value;
+			$this->_sections[$section][$option] = (string) $value;
 		}
 		else {
 			throw new NoSectionException($section);
@@ -296,7 +296,7 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			// write header tag
 			$file->write(sprintf("[%s]\n", $section));
 			// and then all options in this section
-			foreach ($this->data[$section] as $key => $value) {
+			foreach ($this->_sections[$section] as $key => $value) {
 				// option name
 				$line = $key;
 				// space before delimiter?
@@ -329,8 +329,8 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	public function removeOption($section, $option)
 	{
 		if (true === $this->hasSection($section)) {
-			if (isset($this->data[$section][$option])) {
-				unset($this->data[$section][$option]);
+			if (isset($this->_sections[$section][$option])) {
+				unset($this->_sections[$section][$option]);
 				return true;
 			}
 			else {
