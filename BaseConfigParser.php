@@ -14,7 +14,7 @@ namespace NoiseLabs\ToolKit\ConfigParser;
 
 use NoiseLabs\ToolKit\ParameterBag;
 
-class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
+abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 {
 	/**
 	 * A set of internal options used when parsing and writing files.
@@ -57,6 +57,27 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 	 */
 	protected $_files = array();
 
+	/**
+	 * Booleans alias
+	 * @var array
+	 */
+	protected $_boolean_states = array(
+					'1' 	=> true,
+					'yes' 	=> True,
+					'true'	=> true,
+					'on'	=> true,
+					'0' 	=> false,
+					'no'	=> false,
+					'false'	=> false,
+					'off'	=> false
+					);
+
+	/**
+	 * Constructor.
+	 *
+	 * @param array $defaults
+	 * @param array $settings
+	 */
 	public function __construct(array $defaults = array(), array $settings = array())
 	{
 		$this->_defaults = $defaults;
@@ -68,16 +89,66 @@ class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 							'interpolation'				=> false
 							));
 
-		/*
-		 * OS detection to define the linebreak.
-		 * For Windows we use "\r\n".
-		 * For everything else "\n" is used.
-		 */
-		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$this->settings->set('linebreak', "\r\n");
+		if (!isset($settings['linebreak'])) {
+			/*
+			* OS detection to define the linebreak.
+			* For Windows we use "\r\n".
+			* For everything else "\n" is used.
+			*/
+			if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+				$this->settings->set('linebreak', "\r\n");
+			}
 		}
 
 		$this->settings->add($settings);
+	}
+
+	/**
+	 * Note the usage of INI_SCANNER_RAW to avoid parser_ini_files from
+	 * parsing options and transforming 'false' values to empty strings.
+	 */
+	protected function _read($filename)
+	{
+		return parse_ini_file($filename, static::HAS_SECTIONS, INI_SCANNER_RAW);
+	}
+
+	/**
+	 * Re-read configuration from all successfully parsed files.
+	 */
+	public function reload()
+	{
+		$filenames = array();
+		foreach ($this->_files as $file) {
+					$this->_sections = array_merge(
+							$this->_sections,
+							$this->_read($file->getPathname())
+					);
+		}
+	}
+
+	abstract protected function _buildOutputString();
+
+	/**
+	 * Write an .ini-format representation of the configuration state
+	 *
+	 * @throws RuntimeException if file is not writable
+	 */
+	public function write($filename)
+	{
+		$file = new File($filename);
+
+		if (!$file->open('cb')) {
+			throw new \RuntimeException('File '.$file->getPathname().' could not be opened for writing');
+			return false;
+		}
+		elseif (!$file->isWritable()) {
+			throw new \RuntimeException('File '.$file->getPathname().' is not writable');
+			return false;
+		}
+
+		$file->write($this->_buildOutputString());
+
+		$file->close();
 	}
 
 	/**

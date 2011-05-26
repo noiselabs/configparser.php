@@ -129,11 +129,6 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 		}
 	}
 
-	protected function _read($filename)
-	{
-		return parse_ini_file($filename, static::HAS_SECTIONS);
-	}
-
 	/**
 	 * Attempt to read and parse a list of filenames, returning a list of
 	 * filenames which were successfully parsed. If filenames is a string, it
@@ -182,20 +177,6 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	}
 
 	/**
-	 * Re-read configuration from all successfully parsed files.
-	 */
-	public function reload()
-	{
-		$filenames = array();
-		foreach ($this->_files as $file) {
-					$this->_sections = array_merge(
-							$this->_sections,
-							$this->_read($file->getPathname())
-					);
-		}
-	}
-
-	/**
 	 * Get an option value for the named section.
 	 */
 	public function get($section, $option)
@@ -236,18 +217,12 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function getBoolean($section, $option)
 	{
-		$true = array(true, 1, 'true', 'on');
-		$false = array(false, 0, 'false', 'off');
-
 		if (is_string($value = $this->get($section, $option))) {
 			$value = strtolower($value);
 		}
 
-		if (in_array($value, $true)) {
-			return true;
-		}
-		elseif (in_array($value, $false)) {
-			return false;
+		if (in_array($value, $this->_boolean_states)) {
+			return $this->_boolean_states[$value];
 		}
 		else {
 			throw new \UnexpectedValueException("Option '".$option."' in section '".$section."' is not a boolean");
@@ -272,29 +247,18 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 		return $this;
 	}
 
-	/**
-	 * Write an .ini-format representation of the configuration state
-	 *
-	 * @throws RuntimeException if file is not writable
-	 */
-	public function write($filename)
+	protected function _buildOutputString()
 	{
-		$file = new File($filename);
-
-		if (!$file->open('cb')) {
-			throw new \RuntimeException('File '.$file->getPathname().' could not be opened for writing');
-			return false;
-		}
-		elseif (!$file->isWritable()) {
-			throw new \RuntimeException('File '.$file->getPathname().' is not writable');
-			return false;
-		}
+		$output = '';
 
 		// TODO: write default section first
 
 		foreach ($this->sections() as $section) {
+			if (!is_array($this->_sections[$section])) {
+				continue;
+			}
 			// write header tag
-			$file->write(sprintf("[%s]\n", $section));
+			$output .= sprintf("[%s]\n", $section);
 			// and then all options in this section
 			foreach ($this->_sections[$section] as $key => $value) {
 				// option name
@@ -313,12 +277,12 @@ Class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 				// and finally, option value
 				$line .= $value;
 				// record it for eternity
-				$file->write($line.$this->settings->get('linebreak'));
+				$output .= $line.$this->settings->get('linebreak');
 			}
-			$file->write($this->settings->get('linebreak'));
+			$output .= $this->settings->get('linebreak');
 		}
 
-		$file->close();
+		return $output;
 	}
 
 	/**

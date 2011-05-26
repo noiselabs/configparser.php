@@ -94,13 +94,36 @@ Using ConfigParser is as simples as:
 
 	?>
 
+### Using ConfigParser like an associative array
+
+Because it implements `ArrayAccess` the ConfigParser object can be used in a straightforward way:
+
+	<?php
+
+	namespace Your\Namespace;
+
+	use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
+
+	$cfg = new ConfigParser();
+
+	$cfg->read('/home/user/.gitconfig');
+
+	// get values
+	echo $cfg['color']['pager'];
+
+	// set options for the 'color' section
+	$cfg['color'] = array('pager', 'false');
+
+	?>
+
+
 Development
 ===========
 
 Authors
 -------
 
-* Vítor Brandão [ <noisebleed@noiselabs.org> / [@noiselabs](http://twitter.com/noiselabs) / [Blog](http://blog.noiselabs.org) ]
+* Vítor Brandão [ <noisebleed@noiselabs.org> / [@noiselabs](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org) ]
 
 Submitting bugs and feature requests
 ------------------------------------
