@@ -17,7 +17,7 @@ namespace NoiseLabs\ToolKit\ConfigParser;
  *
  * @author Vítor Brandão <noisebleed@noiselabs.org>
  */
-interface ConfigParserInterface extends \ArrayAccess, \Traversable, \Countable
+interface NoSectionsConfigParserInterface
 {
 	public function options();
 }

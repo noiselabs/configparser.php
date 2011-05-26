@@ -29,7 +29,7 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 	 */
 	public function options()
 	{
-		return array_keys($this->_data);
+		return array_keys($this->_sections);
 	}
 
 	/**
@@ -38,5 +38,32 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 	public function hasOption($option)
 	{
 		return isset($this->data[$option]);
+	}
+
+	public function _buildOutputString()
+	{
+		$output = '';
+
+		foreach ($this->_sections as $key => $value) {
+			// option name
+			$line = $key;
+			// space before delimiter?
+			if ($this->settings->get('space_around_delimiters') &&
+			$this->settings->get('delimiter') != ':') {
+				$line .= ' ';
+			}
+			// insert delimiter
+			$line .= $this->settings->get('delimiter');
+			// space after delimiter?
+			if ($this->settings->get('space_around_delimiters')) {
+				$line .= ' ';
+			}
+			// and finally, option value
+			$line .= $value;
+			// record it for eternity
+			$output .= $line.$this->settings->get('linebreak');
+		}
+
+		return $output;
 	}
 }

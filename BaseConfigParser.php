@@ -113,6 +113,38 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 * Attempt to read and parse a list of filenames, returning a list of
+	 * filenames which were successfully parsed. If filenames is a string, it
+	 * is treated as a single filename. If a file named in filenames cannot be
+	 * opened, that file will be ignored. This is designed so that you can
+	 * specify a list of potential configuration file locations (for example,
+	 * the current directory, the user’s home directory, and some system-wide
+	 * directory), and all existing configuration files in the list will be
+	 * read. If none of the named files exist, the ConfigParser instance will
+	 * contain an empty dataset. An application which requires initial values
+	 * to be loaded from a file should load the required file or files using
+	 * read_file() before calling read() for any optional files:
+	 */
+	public function read($filenames = array())
+	{
+		if (!is_array($filenames)) {
+			$filenames = array($filenames);
+		}
+
+		foreach ($filenames as $filename) {
+			if (is_readable($filename)) {
+				// register a new file...
+				$this->_files[] = new File($filename, 'rb');
+				// ... and append configuration
+				$this->_sections = array_merge(
+								$this->_sections,
+								$this->_read($filename)
+					);
+			}
+		}
+	}
+
+	/**
 	 * Re-read configuration from all successfully parsed files.
 	 */
 	public function reload()
