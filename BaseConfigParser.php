@@ -336,7 +336,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 		$this->remove($name);
 	}
 
-	public function log($message, $level = 'crit')
+	public function log($message)
 	{
 		error_log($message);
 	}

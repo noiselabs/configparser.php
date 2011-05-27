@@ -56,8 +56,7 @@ ConfigParser makes use of PHP namespaces and as such the usage of a autoloader l
 
 To have Symfony's ClassLoader autoloading our classes create a `autoload.php` file  and included it at the top of your scripts.
 
-	<?php
-	// autoload.php
+	<?php // autoload.php
 
 	require_once '/path/to/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
 
@@ -65,7 +64,6 @@ To have Symfony's ClassLoader autoloading our classes create a `autoload.php` fi
 
 	$loader = new UniversalClassLoader();
 	$loader->registerNamespaces(array(
-		'Symfony' => '/path/to/symfony/src',
 		'NoiseLabs' => '/path/to/noiselabs-php-toolkit/src',
 	));
 	$loader->register();
