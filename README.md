@@ -38,13 +38,14 @@ Basic instructions on the usage of the library are presented below.
 
 API-level documentation is available under the `doc` folder in `doc/docblox/`.
 
-Parsed INI files
---------------------
+Supported INI File Structure
+----------------------------
 
-The INI files read by ConfigParser consists of sections, lead by a `[section]` header, and followed by `name = value`  entries.
+A configuration file consists of sections, each led by a `[section]` header,  followed by `name = value`  entries..
 
-The option values can contain format strings which refer to other values in
-the same section, or values in a special `[DEFAULT]` section.
+Leading and trailing whitespace is removed from keys and values. Values can be omitted, these will be stored as an empty string.
+
+Configuration files may include comments, prefixed by `;`. Hash marks (`#` ) may no longer be used as comments and will throw a deprecation warning if used.
 
 Usage
 -----
@@ -194,15 +195,6 @@ Please note that default values have precedence over fallback values. For instan
 
 	echo $cfg->get('topsecret.server.com', 'CompressionLevel', '3');
 	// prints 9
-
-Supported INI File Structure
-----------------------------
-
-A configuration file consists of sections, each led by a `[section]` header, followed by key/value entries separated by a specific string `=`.
-
-Leading and trailing whitespace is removed from keys and values. Values can be omitted, these will be stored as an empty string.
-
-Configuration files may include comments, prefixed by `;`. Hash marks (`#` ) may no longer be used as comments and will throw a deprecation warning if used.
 
 Customizing Parser Behaviour
 ----------------------------
