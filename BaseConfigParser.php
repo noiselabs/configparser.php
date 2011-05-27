@@ -201,7 +201,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 				throw new \RuntimeException($errmsg);
 			}
 			else {
-				error_log($errmsg);
+				$this->log($errmsg);
 				return false;
 			}
 		}
@@ -211,7 +211,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 				throw new \RuntimeException($errmsg);
 			}
 			else {
-				error_log($errmsg);
+				$this->log($errmsg);
 				return false;
 			}
 		}
@@ -334,6 +334,11 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	public function offsetUnset($name)
 	{
 		$this->remove($name);
+	}
+
+	public function log($message, $level = 'crit')
+	{
+		error_log($message);
 	}
 
 	protected function _throwExceptions()

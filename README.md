@@ -228,6 +228,44 @@ ConfigParser includes a small set of internal options to change the way it write
 *  **linebreak** - The linebreak to use. Defaults to `'\r\n'` on Windows OS and `'\n'` on every other OS (Linux, Mac).
 * **throw_exceptions** - You may disable exceptions here. If set to false ConfigParser will write the error log instead and return `NULL`. Defaults to `TRUE`.
 
+### Using a custom error logger
+
+If you have disabled PHP exceptions (see above section) ConfigParser will use `error_log()` to record the exception message. In this scenario you may want to use a custom error logger instead of `error_log`, or even disable logging at all.
+
+To override the original logger method just extend ConfigParser and replace `ConfigParser::log()` with your own implementation.
+
+[Monolog](https://github.com/Seldaek/monolog) is a great logging library for PHP 5.3 and will be used as our custom logger in the following example.
+
+	<?php
+
+	namespace Your\Namespace;
+
+	use NoiseLabs\ToolKit\ConfigParser;
+	use Monolog\Logger;
+	use Monolog\Handler\StreamHandler;
+
+	class MyConfigParser extends ConfigParser
+	{
+		protected $logger;
+
+		public function __construct(array $defaults = array(), array $settings = array())
+		{
+			parent::__construct($defaults, $settings);
+
+			// create a log channel
+			$this->logger = new Logger('ConfigParser');
+			$this->logger->pushHandler(new StreamHandler('path/to/your.log', Logger::WARNING));
+		}
+
+		public function log($message)
+		{
+			// add records to the log
+			$this->logger->addError($message);
+		}
+	}
+
+	?>
+
 Development
 ===========
 
