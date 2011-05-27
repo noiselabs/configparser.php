@@ -276,7 +276,6 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 		return $line.$this->settings->get('linebreak');
 	}
 
-
 	protected function _buildOutputString()
 	{
 		$output = '';
