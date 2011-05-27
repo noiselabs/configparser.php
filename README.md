@@ -83,7 +83,7 @@ First take the following INI file as an example:
 	ForwardX11 = yes
 
 	[github.com]
-	user = noiselabs
+	user = foo
 
 	[topsecret.server.com]
 	Port = 50022
@@ -103,7 +103,7 @@ Using ConfigParser is as simples as:
 	$cfg->read('/home/user/.config/server.cfg.sample');
 
 	// modify a value (section, option, value)
-	$cfg->set('github.com', 'user', 'john');
+	$cfg->set('github.com', 'user', 'bar');
 
 	// and save it (leave empty to use the last file parsed)
 	$cfg->write('/home/user/.config/server.cfg');
@@ -122,7 +122,7 @@ Because it implements `ArrayAccess` the ConfigParser object can be used in a str
 	echo $cfg['github.com']['user'];
 
 	// set options for the 'github.com' section
-	$cfg['github.com'] = array('user', 'john');
+	$cfg['github.com'] = array('user', 'bar');
 
 	?>
 

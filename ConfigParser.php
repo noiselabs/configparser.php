@@ -122,7 +122,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 				throw new NoSectionException($section);
 			}
 			else {
-				error_log("Section '".$section."' doesn't exist");
+				$this->log("Section '".$section."' doesn't exist");
 				return null;
 			}
 		}
@@ -174,7 +174,13 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			return $fallback;
 		}
 		else {
-			throw new NoOptionException($section, $option);
+			if ($this->_throwExceptions()) {
+				throw new NoOptionException($section, $option);
+			}
+			else {
+				$this->log("Option '".$option."' doesn't exist in section '".$section."'");
+				return null;
+			}
 		}
 	}
 
@@ -214,7 +220,14 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			return $this->_boolean_states[$value];
 		}
 		else {
-			throw new \UnexpectedValueException("Option '".$option."' in section '".$section."' is not a boolean");
+			$errmsg = "Option '".$option."' in section '".$section."' is not a boolean";
+			if ($this->_throwExceptions()) {
+				throw new \UnexpectedValueException($errmsg);
+			}
+			else {
+				$this->log($errmsg);
+				return null;
+			}
 		}
 	}
 
@@ -230,7 +243,13 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			$this->_sections[$section][$option] = (string) $value;
 		}
 		else {
-			throw new NoSectionException($section);
+			if ($this->_throwExceptions()) {
+				throw new NoSectionException($section);
+			}
+			else {
+				$this->log("Section '".$section."' wasn't found.");
+				return null;
+			}
 		}
 
 		return $this;
@@ -304,7 +323,13 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 			}
 		}
 		else {
-			throw new NoSectionException($section);
+			if ($this->_throwExceptions()) {
+				throw new NoSectionException($section);
+			}
+			else {
+				$this->log("Section '".$section."' wasn't found.");
+				return null;
+			}
 		}
 	}
 }
