@@ -56,7 +56,8 @@ ConfigParser makes use of PHP namespaces and as such the usage of a autoloader l
 
 To have Symfony's ClassLoader autoloading our classes create a `autoload.php` file  and included it at the top of your scripts.
 
-	<?php // autoload.php
+	<?php
+	// autoload.php
 
 	require_once '/path/to/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
 
@@ -72,7 +73,7 @@ To have Symfony's ClassLoader autoloading our classes create a `autoload.php` fi
 
 ### Basic usage
 
-First take the following INI file as an example:
+First, take the following INI file as an example:
 
 	[DEFAULT]
 	ServerAliveInterval = 45
@@ -97,13 +98,16 @@ Using ConfigParser is as simples as:
 
 	$cfg = new ConfigParser();
 
-	// parse file
+	// load file
 	$cfg->read('/home/user/.config/server.cfg.sample');
 
 	// modify a value (section, option, value)
 	$cfg->set('github.com', 'user', 'bar');
 
-	// and save it (leave empty to use the last file parsed)
+	// and save it
+	$cfg->save();
+
+	// ... or, write to another file
 	$cfg->write('/home/user/.config/server.cfg');
 
 	?>
@@ -126,7 +130,7 @@ Because it implements `ArrayAccess` the ConfigParser object can be used in a str
 
 ### Iterate
 
-Because ConfigParser implements `IteratorAggregate` it is possible to use `foreach` to loop over the configuration.
+And because ConfigParser implements `IteratorAggregate` it is also possible to use `foreach` to loop over the configuration.
 
 	$cfg = new ConfigParser();
 
@@ -216,7 +220,7 @@ ConfigParser includes a small set of internal options to change the way it write
 * **delimiter** - The delimiter character to use between keys and values (when writing). Defaults to `= `.
 *  **space_around_delimiters** - Inserts (or not) a blank space between keys/values and delimiters. Defaults to `TRUE`.
 *  **linebreak** - The linebreak to use. Defaults to `'\r\n'` on Windows OS and `'\n'` on every other OS (Linux, Mac).
-* **throw_exceptions** - You may disable exceptions here. If set to false ConfigParser will write the error log instead and return `NULL`. Defaults to `TRUE`.
+* **throw_exceptions** - Use this option to disable exceptions. If set to false ConfigParser will write the error log instead and return `NULL`. Defaults to `TRUE`.
 
 ### Using a custom error logger
 
@@ -262,7 +266,7 @@ Development
 Authors
 -------
 
-* Vítor Brandão [ <noisebleed@noiselabs.org> / [@noiselabs](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org) ]
+* Vítor Brandão - <noisebleed@noiselabs.org> / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org)
 
 Submitting bugs and feature requests
 ------------------------------------
