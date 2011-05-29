@@ -220,7 +220,7 @@ ConfigParser includes a small set of internal options to change the way it write
 * **delimiter** - The delimiter character to use between keys and values (when writing). Defaults to `= `.
 *  **space_around_delimiters** - Inserts (or not) a blank space between keys/values and delimiters. Defaults to `TRUE`.
 *  **linebreak** - The linebreak to use. Defaults to `'\r\n'` on Windows OS and `'\n'` on every other OS (Linux, Mac).
-* **throw_exceptions** - Use this option to disable exceptions. If set to false ConfigParser will write the error log instead and return `NULL`. Defaults to `TRUE`.
+* **throw_exceptions** - Use this option to disable exceptions. If set to false ConfigParser will write to the error log instead. Defaults to `TRUE`.
 
 ### Using a custom error logger
 
@@ -271,7 +271,7 @@ Authors
 Submitting bugs and feature requests
 ------------------------------------
 
-Bugs and feature requests are tracked on [GitHub](https://github.com/noiselabs/noiselabs-php-toolkit/issues)
+Bugs and feature requests are tracked on [GitHub](https://github.com/noiselabs/noiselabs-php-toolkit/issues).
 
 Acknowledgements
 -----------------
