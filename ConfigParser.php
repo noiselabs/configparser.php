@@ -57,16 +57,16 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function addSection($section)
 	{
-		// Raise InvalidArgumentException if name is DEFAULT or any of it's
-		// case-insensitive variants.
-		if (strtolower($section) == 'default') {
-			throw new \InvalidArgumentException('Invalid section name: '.$section);
-		}
-
 		// Raise InvalidArgumentException if the name of the section is not
 		// a string
 		if (!is_string($section)) {
 			throw new \InvalidArgumentException('Invalid type: expecting a string');
+		}
+
+		// Raise InvalidArgumentException if name is DEFAULT or any of it's
+		// case-insensitive variants.
+		if (strtolower($section) == 'default') {
+			throw new \InvalidArgumentException('Invalid section name: '.$section);
 		}
 
 		if (false === $this->hasSection($section)) {
@@ -106,7 +106,12 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	 */
 	public function hasOption($section, $option)
 	{
-		return isset($this->_sections[$section][$option]);
+		if (($section === null) || ($section == '')) {
+			return isset($this->_defaults[$option]);
+		}
+		else {
+			return isset($this->_sections[$section][$option]);
+		}
 	}
 
 	/**
