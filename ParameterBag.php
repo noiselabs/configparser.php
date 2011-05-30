@@ -28,7 +28,7 @@
  *  DEALINGS IN THE SOFTWARE
  */
 
-namespace Symfony\Component\HttpFoundation;
+namespace NoiseLabs\ToolKit\ConfigParser;
 
 /**
  * ParameterBag is a container for key/value pairs.
