@@ -136,7 +136,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	protected function _read($filename)
 	{
-		return parse_ini_file($filename, static::HAS_SECTIONS, INI_SCANNER_RAW);
+		return @parse_ini_file($filename, static::HAS_SECTIONS, INI_SCANNER_RAW);
 	}
 
 	/**
