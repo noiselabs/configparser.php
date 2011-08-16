@@ -241,7 +241,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	{
 		$file = new File($filename);
 
-		if (!$file->open('cb')) {
+		if (!$file->open('wb')) {
 			$errmsg = 'Unable to write configuration as file '.$file->getPathname().' could not be opened for writing';
 			if ($this->_throwExceptions()) {
 				throw new \RuntimeException($errmsg);
