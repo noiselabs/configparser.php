@@ -301,6 +301,12 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 	{
 		$output = '';
 
+		if (true === $this->settings->get('save_comments')) {
+			foreach ($this->_comments as $comment) {
+				$output .= $comment;
+			}
+		}
+
 		// TODO: write default section first
 		if (!empty($this->_defaults)) {
 			$output .= sprintf("[%s]\n", static::DEFAULT_SECTION);

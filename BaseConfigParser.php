@@ -21,7 +21,7 @@
  *
  * @category NoiseLabs
  * @package ConfigParser
- * @version 0.1.1
+ * @version 0.2.0-BETA2
  * @author Vítor Brandão <noisebleed@noiselabs.org>
  * @copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
  */
@@ -32,7 +32,7 @@ use NoiseLabs\ToolKit\ConfigParser\ParameterBag;
 
 abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-	const VERSION = '0.1.0';
+	const VERSION = '0.2.0-BETA2';
 
 	/**
 	 * A set of internal options used when parsing and writing files.
@@ -70,6 +70,14 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	protected $_sections = array();
 
 	/**
+	 * Comment lines are stored here so they can make it to the destination
+	 * file.
+	 *
+	 * @var array $_comments
+	 */
+	protected $_comments;
+
+	/**
 	 * An array of FILE objects representing the loaded files.
 	 * @var array
 	 */
@@ -105,7 +113,8 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 							'space_around_delimiters' 	=> true,
 							'linebreak'					=> "\n",
 							'throw_exceptions'			=> true,
-							'interpolation'				=> false
+							'interpolation'				=> false,
+							'save_comments'				=> true
 							));
 
 		if (!isset($settings['linebreak'])) {
@@ -131,11 +140,32 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	}
 
 	/**
+	 * Saves all comments into an internal variable to be used when writing the
+	 * configuration to a file.
+	 *
+	 * @param string $filename
+	 */
+	protected function readComments($filename)
+	{
+		$this->_comments = file($filename);
+
+		foreach (array_keys($this->_comments) as $i) {
+			if (substr(trim($this->_comments[$i]), 0, 1) != ';') {
+				unset($this->_comments[$i]);
+			}
+		}
+	}
+
+	/**
 	 * Note the usage of INI_SCANNER_RAW to avoid parser_ini_files from
 	 * parsing options and transforming 'false' values to empty strings.
 	 */
 	protected function _read($filename)
 	{
+		if (true === $this->settings->get('save_comments')) {
+			$this->readComments($filename);
+		}
+
 		return @parse_ini_file($filename, static::HAS_SECTIONS, INI_SCANNER_RAW);
 	}
 
@@ -286,6 +316,17 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	public function dump()
 	{
 		var_dump($this->_sections);
+	}
+
+	/**
+	 * Prints to the screen the current string as it would be written to the
+	 * configuration file.
+	 *
+	 * @return void
+	 */
+	public function output()
+	{
+		var_dump($this->_buildOutputString());
 	}
 
 	/**
