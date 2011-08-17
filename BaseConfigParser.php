@@ -111,22 +111,11 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 		$this->settings = new ParameterBag(array(
 							'delimiter'					=> '=',
 							'space_around_delimiters' 	=> true,
-							'linebreak'					=> "\n",
+							'linebreak'					=> PHP_EOL,
 							'throw_exceptions'			=> true,
 							'interpolation'				=> false,
 							'save_comments'				=> true
 							));
-
-		if (!isset($settings['linebreak'])) {
-			/*
-			* OS detection to define the linebreak.
-			* For Windows we use "\r\n".
-			* For everything else "\n" is used.
-			*/
-			if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-				$this->settings->set('linebreak', "\r\n");
-			}
-		}
 
 		$this->settings->add($settings);
 	}
@@ -162,6 +151,17 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
 	 */
 	protected function _read($filename)
 	{
+		if (!file_exists($filename)) {
+			$errmsg = 'File '.$file->getPathname().' does not exist.';
+			if ($this->_throwExceptions()) {
+				throw new \RuntimeException($errmsg);
+			}
+			else {
+				$this->log($errmsg);
+				return false;
+			}
+		}
+
 		if (true === $this->settings->get('save_comments')) {
 			$this->readComments($filename);
 		}
