@@ -160,8 +160,6 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 								$this->_sections[static::DEFAULT_SECTION]
 								);
 			unset($this->_sections[static::DEFAULT_SECTION]);
-
-			var_dump($this->_defaults);
 		}
 	}
 
