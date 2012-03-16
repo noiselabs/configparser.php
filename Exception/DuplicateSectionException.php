@@ -30,10 +30,10 @@ namespace NoiseLabs\ToolKit\ConfigParser\Exception;
 
 class DuplicateSectionException extends \RuntimeException
 {
-	public function __construct($section)
-	{
-		parent::__construct('Section \''.$section.'\' already exists');
-	}
+    public function __construct($section)
+    {
+        parent::__construct('Section \''.$section.'\' already exists');
+    }
 }
 
 ?>

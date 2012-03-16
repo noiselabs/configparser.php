@@ -33,45 +33,45 @@ namespace NoiseLabs\ToolKit\ConfigParser;
  */
 interface ConfigParserInterface
 {
-	public function defaults();
+    public function defaults();
 
-	public function sections();
+    public function sections();
 
-	public function addSection($section);
+    public function addSection($section);
 
-	public function hasSection($section);
+    public function hasSection($section);
 
-	public function options($section);
+    public function options($section);
 
-	public function hasOption($section, $option);
+    public function hasOption($section, $option);
 
-	public function read($filenames = array());
+    public function read($filenames = array());
 
-	public function readFile($filehandler);
+    public function readFile($filehandler);
 
-	public function readString($string);
+    public function readString($string);
 
-	public function readArray(array $array);
+    public function readArray(array $array);
 
-	public function get($section, $option);
+    public function get($section, $option);
 
-	public function getInt($section, $option);
+    public function getInt($section, $option);
 
-	public function getFloat($section, $option);
+    public function getFloat($section, $option);
 
-	public function getBoolean($section, $option);
+    public function getBoolean($section, $option);
 
-	public function set($section, $option, $value);
+    public function set($section, $option, $value);
 
-	public function write($filename);
+    public function write($filename);
 
-	public function save();
+    public function save();
 
-	public function removeOption($section, $option);
+    public function removeOption($section, $option);
 
-	public function removeSection($section);
+    public function removeSection($section);
 
-	public function dump();
+    public function dump();
 }
 
 ?>

@@ -35,5 +35,5 @@ namespace NoiseLabs\ToolKit\ConfigParser;
  */
 interface NoSectionsConfigParserInterface
 {
-	public function options();
+    public function options();
 }

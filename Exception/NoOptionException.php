@@ -30,10 +30,10 @@ namespace NoiseLabs\ToolKit\ConfigParser\Exception;
 
 class NoOptionException extends \RuntimeException
 {
-	public function __construct($section, $option)
-	{
-		parent::__construct("Option '".$option."' on section '".$section."' doesn't exist");
-	}
+    public function __construct($section, $option)
+    {
+        parent::__construct("Option '".$option."' on section '".$section."' doesn't exist");
+    }
 }
 
 ?>

@@ -25,11 +25,11 @@ Cloning/downloading from [GitHub](https://github.com/noiselabs/noiselabs-php-too
 
 You may clone via git:
 
-	$ git clone git://github.com/noiselabs/noiselabs-php-toolkit.git
+    $ git clone git://github.com/noiselabs/noiselabs-php-toolkit.git
 
 or download a tarball either in Gzip or Zip format:
 
-	https://github.com/noisebleed/noiselabs-php-toolkit/archives/master
+    https://github.com/noisebleed/noiselabs-php-toolkit/archives/master
 
 Documentation
 ==============
@@ -56,118 +56,118 @@ ConfigParser makes use of PHP namespaces and as such the usage of a autoloader l
 
 To have Symfony's ClassLoader autoloading our classes create a `autoload.php` file  and included it at the top of your scripts.
 
-	<?php
-	// autoload.php
+    <?php
+    // autoload.php
 
-	require_once '/path/to/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+    require_once '/path/to/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
 
-	use Symfony\Component\ClassLoader\UniversalClassLoader;
+    use Symfony\Component\ClassLoader\UniversalClassLoader;
 
-	$loader = new UniversalClassLoader();
-	$loader->registerNamespaces(array(
-		'NoiseLabs' => '/path/to/noiselabs-php-toolkit/src',
-	));
-	$loader->register();
+    $loader = new UniversalClassLoader();
+    $loader->registerNamespaces(array(
+        'NoiseLabs' => '/path/to/noiselabs-php-toolkit/src',
+    ));
+    $loader->register();
 
-	?>
+    ?>
 
 ### Basic usage
 
 First, take the following INI file as an example:
 
-	[DEFAULT]
-	ServerAliveInterval = 45
-	Compression = yes
-	CompressionLevel = 9
-	ForwardX11 = yes
+    [DEFAULT]
+    ServerAliveInterval = 45
+    Compression = yes
+    CompressionLevel = 9
+    ForwardX11 = yes
 
-	[github.com]
-	user = foo
+    [github.com]
+    user = foo
 
-	[topsecret.server.com]
-	Port = 50022
-	ForwardX11 = no
+    [topsecret.server.com]
+    Port = 50022
+    ForwardX11 = no
 
 Using ConfigParser is as simples as:
 
-	<?php
+    <?php
 
-	namespace Your\Namespace;
+    namespace Your\Namespace;
 
-	use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
+    use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
 
-	$cfg = new ConfigParser();
+    $cfg = new ConfigParser();
 
-	// load file
-	$cfg->read('/home/user/.config/server.cfg.sample');
+    // load file
+    $cfg->read('/home/user/.config/server.cfg.sample');
 
-	// modify a value (section, option, value)
-	$cfg->set('github.com', 'user', 'bar');
+    // modify a value (section, option, value)
+    $cfg->set('github.com', 'user', 'bar');
 
-	// and save it
-	$cfg->save();
+    // and save it
+    $cfg->save();
 
-	// ... or, write to another file
-	$cfg->write('/home/user/.config/server.cfg');
+    // ... or, write to another file
+    $cfg->write('/home/user/.config/server.cfg');
 
-	?>
+    ?>
 
 ### Using ConfigParser like an associative array
 
 Because it implements `ArrayAccess` the ConfigParser object can be used in a straightforward way:
 
-	$cfg = new ConfigParser();
+    $cfg = new ConfigParser();
 
-	$cfg->read('/home/user/.config/server.cfg');
+    $cfg->read('/home/user/.config/server.cfg');
 
-	// get values
-	echo $cfg['github.com']['user'];
+    // get values
+    echo $cfg['github.com']['user'];
 
-	// set options for the 'github.com' section
-	$cfg['github.com'] = array('user', 'bar');
+    // set options for the 'github.com' section
+    $cfg['github.com'] = array('user', 'bar');
 
-	?>
+    ?>
 
 ### Iterate
 
 And because ConfigParser implements `IteratorAggregate` it is also possible to use `foreach` to loop over the configuration.
 
-	$cfg = new ConfigParser();
+    $cfg = new ConfigParser();
 
-	foreach ($cfg as $section => $name) {
-		echo sprintf("Section '%s' has the following options: %s\n",
-					$section,
-					implode(", ", $cfg->options($section))
-					);
-	}
+    foreach ($cfg as $section => $name) {
+        echo sprintf("Section '%s' has the following options: %s\n",
+                    $section,
+                    implode(", ", $cfg->options($section))
+                    );
+    }
 
 ### Loading multiple files at once
 
 This is designed so that you can specify a list of potential configuration file locations (for example, the current directory, the user’s home directory, and some system-wide directory), and all existing configuration files in the array will be read.
 
-	$cfg = new ConfigParser();
+    $cfg = new ConfigParser();
 
-	$cfg->read(array('/etc/myapp.cfg', '/usr/local/etc/myapp.cfg', '/home/user/.config/myapp.cfg');
+    $cfg->read(array('/etc/myapp.cfg', '/usr/local/etc/myapp.cfg', '/home/user/.config/myapp.cfg');
 
 ### Parsing files without sections
 
 ConfigParser was designed to work with INI files with section tags. For simple files with just `option = value` entries `NoSectionsConfigParser` can be used.
 
-	<?php
+    <?php
 
-	namespace Your\Namespace;
+    namespace Your\Namespace;
 
-	use NoiseLabs\ToolKit\ConfigParser\NoSectionsConfigParser;
+    use NoiseLabs\ToolKit\ConfigParser\NoSectionsConfigParser;
 
-	$cfg = NoSectionsConfigParser();
+    $cfg = NoSectionsConfigParser();
 
-	$cfg->read('/tmp/sectionless.cfg');
+    $cfg->read('/tmp/sectionless.cfg');
 
-	$cfg->set('server', '192.168.1.1.');
+    $cfg->set('server', '192.168.1.1.');
 
-	echo $cfg->get('server');
+    echo $cfg->get('server');
 
-	?>
+    ?>
 
 ### Supported Datatypes
 
@@ -177,26 +177,26 @@ This means that if you need other datatypes, you should convert on your own, or 
 
 * Integers:
 
-		$cfg->getInt('topsecret.server.com', 'Port');
+        $cfg->getInt('topsecret.server.com', 'Port');
 
 * Floats:
 
-		$cfg->getFloat('topsecret.server.com', 'CompressionLevel');
+        $cfg->getFloat('topsecret.server.com', 'CompressionLevel');
 
 * Booleans:
 
-		$cfg->getBoolean('topsecret.server.com', 'ForwardX11');
+        $cfg->getBoolean('topsecret.server.com', 'ForwardX11');
 
 ### Fallback Values
 
 When using `get()` to pull a value from the configuration you may provide a fallback value in case that option doesn't exist.
 
-	// API: ConfigParser::get($section, $option, $fallback)
+    // API: ConfigParser::get($section, $option, $fallback)
 
 Please note that default values have precedence over fallback values. For instance, in our example the 'CompressionLevel' key was specified only in the 'DEFAULT' section. If we try to get it from the section 'topsecret.server.com', we will always get the default, even if we specify a fallback:
 
-	echo $cfg->get('topsecret.server.com', 'CompressionLevel', '3');
-	// prints 9
+    echo $cfg->get('topsecret.server.com', 'CompressionLevel', '3');
+    // prints 9
 
 Customizing Parser Behaviour
 ----------------------------
@@ -205,13 +205,13 @@ Customizing Parser Behaviour
 
 You may create an array of key-value pairs and pass them to the constructor as the first argument. These option/values will be initially put in the DEFAULT section. This makes for an elegant way to support concise configuration files that don’t specify values which are the same as the documented default.
 
-	// define some defaults values
-	$defaults = array(
-					'Compression' 		=> 'yes',
-					'CompressionLevel' 	=> 9
-					);
+    // define some defaults values
+    $defaults = array(
+                    'Compression' 		=> 'yes',
+                    'CompressionLevel' 	=> 9
+                    );
 
-	$cfg = new ConfigParser($defaults);
+    $cfg = new ConfigParser($defaults);
 
 ### Advanced configuration
 
@@ -230,35 +230,35 @@ To override the original logger method just extend ConfigParser and replace `Con
 
 [Monolog](https://github.com/Seldaek/monolog) is a great logging library for PHP 5.3 and will be used as our custom logger in the following example.
 
-	<?php
+    <?php
 
-	namespace Your\Namespace;
+    namespace Your\Namespace;
 
-	use NoiseLabs\ToolKit\ConfigParser;
-	use Monolog\Logger;
-	use Monolog\Handler\StreamHandler;
+    use NoiseLabs\ToolKit\ConfigParser;
+    use Monolog\Logger;
+    use Monolog\Handler\StreamHandler;
 
-	class MyConfigParser extends ConfigParser
-	{
-		protected $logger;
+    class MyConfigParser extends ConfigParser
+    {
+        protected $logger;
 
-		public function __construct(array $defaults = array(), array $settings = array())
-		{
-			parent::__construct($defaults, $settings);
+        public function __construct(array $defaults = array(), array $settings = array())
+        {
+            parent::__construct($defaults, $settings);
 
-			// create a log channel
-			$this->logger = new Logger('ConfigParser');
-			$this->logger->pushHandler(new StreamHandler('path/to/your.log', Logger::WARNING));
-		}
+            // create a log channel
+            $this->logger = new Logger('ConfigParser');
+            $this->logger->pushHandler(new StreamHandler('path/to/your.log', Logger::WARNING));
+        }
 
-		public function log($message)
-		{
-			// add records to the log
-			$this->logger->addError($message);
-		}
-	}
+        public function log($message)
+        {
+            // add records to the log
+            $this->logger->addError($message);
+        }
+    }
 
-	?>
+    ?>
 
 Development
 ===========

@@ -30,10 +30,10 @@ namespace NoiseLabs\ToolKit\ConfigParser\Exception;
 
 class NoSectionException extends \RuntimeException
 {
-	public function __construct($section)
-	{
-		parent::__construct("Section '".$section."' doesn't exist");
-	}
+    public function __construct($section)
+    {
+        parent::__construct("Section '".$section."' doesn't exist");
+    }
 }
 
 ?>
