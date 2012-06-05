@@ -36,4 +36,3 @@ class NoOptionException extends \RuntimeException
     }
 }
 
-?>

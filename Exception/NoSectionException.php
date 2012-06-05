@@ -36,4 +36,3 @@ class NoSectionException extends \RuntimeException
     }
 }
 
-?>

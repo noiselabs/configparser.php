@@ -155,8 +155,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
             $errmsg = 'File '.$file->getPathname().' does not exist.';
             if ($this->_throwExceptions()) {
                 throw new \RuntimeException($errmsg);
-            }
-            else {
+            } else {
                 $this->log($errmsg);
 
                 return false;
@@ -246,19 +245,16 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
             $errmsg = 'Unable to write configuration as file '.$file->getPathname().' could not be opened for writing';
             if ($this->_throwExceptions()) {
                 throw new \RuntimeException($errmsg);
-            }
-            else {
+            } else {
                 $this->log($errmsg);
 
                 return false;
             }
-        }
-        elseif (!$file->isWritable()) {
+        } elseif (!$file->isWritable()) {
             $errmsg = 'Unable to write configuration as file '.$file->getPathname().' is not writable';
             if ($this->_throwExceptions()) {
                 throw new \RuntimeException($errmsg);
-            }
-            else {
+            } else {
                 $this->log($errmsg);
 
                 return false;
@@ -342,8 +338,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
             unset($this->_sections[$section]);
 
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -379,7 +374,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * \ArrayAccess interface).
      *
      * @param string $section The name of the section to insert $options.
-     * @param array $options  The array of options to be added
+     * @param array  $options The array of options to be added
      */
     public function offsetSet($offset, $value)
     {
@@ -390,7 +385,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * Removes the child with the given name from the form (implements the
      * \ArrayAccess interface).
      *
-     * @param string $name  The name of the child to be removed
+     * @param string $name The name of the child to be removed
      */
     public function offsetUnset($name)
     {
@@ -408,4 +403,3 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     }
 }
 
-?>

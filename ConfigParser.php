@@ -87,8 +87,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 
         if (false === $this->hasSection($section)) {
             $this->_sections[(string) $section] = array();
-        }
-        else {
+        } else {
             throw new DuplicateSectionException($section);
         }
     }
@@ -109,8 +108,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     {
         if (true === $this->hasSection($section)) {
             return array_keys($this->_sections[$section]);
-        }
-        else {
+        } else {
             throw new NoSectionException($section);
         }
     }
@@ -124,8 +122,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     {
         if (($section === null) || ($section == '')) {
             return isset($this->_defaults[$option]);
-        }
-        else {
+        } else {
             return isset($this->_sections[$section][$option]);
         }
     }
@@ -137,12 +134,10 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     {
         if ($this->hasSection($section)) {
             $this->_sections[$section] = $options;
-        }
-        else {
+        } else {
             if ($this->_throwExceptions()) {
                 throw new NoSectionException($section);
-            }
-            else {
+            } else {
                 $this->log("Section '".$section."' doesn't exist");
 
                 return null;
@@ -176,7 +171,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * @param $fallback A fallback value to use if the option isn't found in
      * 					the configuration and $defaults.
      *
-     * @return Option value (if available)
+     * @return Option            value (if available)
      * @throws NoOptionException Couldn't find the desired option in the
      * configuration, $defaults or as a fallback value.
      */
@@ -192,12 +187,10 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
         // try $fallback
         elseif (isset($fallback)) {
             return $fallback;
-        }
-        else {
+        } else {
             if ($this->_throwExceptions()) {
                 throw new NoOptionException($section, $option);
-            }
-            else {
+            } else {
                 $this->log("Option '".$option."' doesn't exist in section '".$section."'");
 
                 return null;
@@ -239,13 +232,11 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 
         if (in_array($value, $this->_boolean_states)) {
             return $this->_boolean_states[$value];
-        }
-        else {
+        } else {
             $errmsg = "Option '".$option."' in section '".$section."' is not a boolean";
             if ($this->_throwExceptions()) {
                 throw new \UnexpectedValueException($errmsg);
-            }
-            else {
+            } else {
                 $this->log($errmsg);
 
                 return null;
@@ -263,12 +254,10 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     {
         if (true === $this->hasSection($section)) {
             $this->_sections[$section][$option] = (string) $value;
-        }
-        else {
+        } else {
             if ($this->_throwExceptions()) {
                 throw new NoSectionException($section);
-            }
-            else {
+            } else {
                 $this->log("Section '".$section."' wasn't found.");
 
                 return null;
@@ -346,16 +335,13 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
                 unset($this->_sections[$section][$option]);
 
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else {
+        } else {
             if ($this->_throwExceptions()) {
                 throw new NoSectionException($section);
-            }
-            else {
+            } else {
                 $this->log("Section '".$section."' wasn't found.");
 
                 return null;
@@ -364,4 +350,3 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     }
 }
 
-?>

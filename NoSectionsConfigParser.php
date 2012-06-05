@@ -68,7 +68,7 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
      * @param $fallback A fallback value to use if the option isn't found in
      * 					the configuration.
      *
-     * @return Option value (if available)
+     * @return Option            value (if available)
      * @throws NoOptionException Couldn't find the desired option in the
      * configuration or as a fallback value.
      */
@@ -80,12 +80,10 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
         // try $fallback
         elseif (isset($fallback)) {
             return $fallback;
-        }
-        else {
+        } else {
             if ($this->_throwExceptions()) {
                 throw new NoOptionException('<None>', $option);
-            }
-            else {
+            } else {
                 error_log(sprintf("Option '%s' wasn't found", $option));
 
                 return null;
@@ -126,13 +124,11 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 
         if (isset($this->_boolean_states[$value])) {
             return $this->_boolean_states[$value];
-        }
-        else {
+        } else {
             $error_msg = "Option '".$option."' is not a boolean";
             if ($this->_throwExceptions()) {
                 throw new \UnexpectedValueException($error_msg);
-            }
-            else {
+            } else {
                 error_log($error_msg);
 
                 return null;

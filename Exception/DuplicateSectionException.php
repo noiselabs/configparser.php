@@ -36,4 +36,3 @@ class DuplicateSectionException extends \RuntimeException
     }
 }
 
-?>
