@@ -40,20 +40,20 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * Known settings:
      *
      *  'delimiter':
-     * 		The delimiter character to use between keys and values.
-     *		Defaults to '='.
+     *      The delimiter character to use between keys and values.
+     *      Defaults to '='.
      *
      *  'space_around_delimiters':
-     *		Put a blank space between keys/values and delimiters?
-     *		Defaults to TRUE.
+     *      Put a blank space between keys/values and delimiters?
+     *      Defaults to TRUE.
      *
      *  'linebreak':
-     *		The linebreak to use.
-     *		Defaults to '\r\n' on Windows OS and '\n' on every other OS.
+     *      The linebreak to use.
+     *      Defaults to '\r\n' on Windows OS and '\n' on every other OS.
      *
      *  'interpolation':
-     *		@todo: Describe the interpolation mecanism.
-     *		Defaults to FALSE.
+     *      @todo: Describe the interpolation mecanism.
+     *      Defaults to FALSE.
      */
     public $settings = array();
 
@@ -88,15 +88,15 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * @var array
      */
     protected $_boolean_states = array(
-                    '1' 	=> true,
-                    'yes' 	=> True,
-                    'true'	=> true,
-                    'on'	=> true,
-                    '0' 	=> false,
-                    'no'	=> false,
-                    'false'	=> false,
-                    'off'	=> false
-                    );
+        '1'     => true,
+        'yes'   => True,
+        'true'  => true,
+        'on'    => true,
+        '0'     => false,
+        'no'    => false,
+        'false' => false,
+        'off'   => false
+    );
 
     /**
      * Constructor.
@@ -109,13 +109,13 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
         $this->_defaults = $defaults;
         // default options
         $this->settings = new ParameterBag(array(
-                            'delimiter'					=> '=',
-                            'space_around_delimiters' 	=> true,
-                            'linebreak'					=> PHP_EOL,
-                            'throw_exceptions'			=> true,
-                            'interpolation'				=> false,
-                            'save_comments'				=> true
-                            ));
+            'delimiter'                 => '=',
+            'space_around_delimiters'   => true,
+            'linebreak'                 => PHP_EOL,
+            'throw_exceptions'          => true,
+            'interpolation'             => false,
+            'save_comments'             => true
+        ));
 
         $this->settings->add($settings);
     }
@@ -194,9 +194,9 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
                 $this->_files[] = new File($filename, 'rb');
                 // ... and append configuration
                 $this->_sections = array_replace(
-                                $this->_sections,
-                                $this->_read($filename)
-                    );
+                    $this->_sections,
+                    $this->_read($filename)
+                );
             }
         }
     }
@@ -223,14 +223,12 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     {
         $filenames = array();
         foreach ($this->_files as $file) {
-                    $this->_sections = array_merge(
-                            $this->_sections,
-                            $this->_read($file->getPathname())
-                    );
+            $this->_sections = array_merge(
+                $this->_sections,
+                $this->_read($file->getPathname())
+            );
         }
     }
-
-    abstract protected function _buildOutputString();
 
     /**
      * Write an .ini-format representation of the configuration state
@@ -325,7 +323,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      */
     public function output()
     {
-        var_dump($this->_buildOutputString());
+        echo $this->_buildOutputString();
     }
 
     /**
@@ -396,6 +394,8 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     {
         error_log($message);
     }
+
+    abstract protected function _buildOutputString();
 
     protected function _throwExceptions()
     {
