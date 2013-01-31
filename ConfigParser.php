@@ -52,8 +52,8 @@ use NoiseLabs\ToolKit\ConfigParser\Exception\NoOptionException;
  */
 class ConfigParser extends BaseConfigParser implements ConfigParserInterface
 {
-    const DEFAULT_SECTION 	= 'DEFAULT';
-    const HAS_SECTIONS		= true;
+    const DEFAULT_SECTION   = 'DEFAULT';
+    const HAS_SECTIONS      = true;
 
     /**
      * Return a list of the sections available; the default section is not
@@ -90,6 +90,8 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
         } else {
             throw new DuplicateSectionException($section);
         }
+
+        return $this;
     }
 
     /**
@@ -143,6 +145,8 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
                 return null;
             }
         }
+
+        return $this;
     }
 
     public function read($filenames = array())
@@ -349,4 +353,3 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
         }
     }
 }
-
