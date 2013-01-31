@@ -35,4 +35,3 @@ class DuplicateSectionException extends \RuntimeException
         parent::__construct('Section \''.$section.'\' already exists');
     }
 }
-

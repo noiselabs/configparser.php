@@ -73,4 +73,3 @@ interface ConfigParserInterface
 
     public function dump();
 }
-

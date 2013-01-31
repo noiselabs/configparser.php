@@ -402,4 +402,3 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
         return (false === $this->settings->get('throw_exceptions')) ? false : true;
     }
 }
-

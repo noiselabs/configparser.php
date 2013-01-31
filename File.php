@@ -133,4 +133,3 @@ class File
         return unlink($this->_path);
     }
 }
-

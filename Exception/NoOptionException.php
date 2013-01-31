@@ -35,4 +35,3 @@ class NoOptionException extends \RuntimeException
         parent::__construct("Option '".$option."' on section '".$section."' doesn't exist");
     }
 }
-

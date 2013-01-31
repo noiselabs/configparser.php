@@ -35,4 +35,3 @@ class NoSectionException extends \RuntimeException
         parent::__construct("Section '".$section."' doesn't exist");
     }
 }
-
