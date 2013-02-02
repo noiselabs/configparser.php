@@ -1,0 +1,30 @@
+{
+    "name": "noiselabs/configparser",
+    "type": "library",
+    "description": "A configuration file parser for PHP 5.3 heavily inspired by Python's configparser library",
+     "keywords": ["noiselabs", "configparser", "config", "parser"],
+    "homepage": "https://github.com/noiselabs/configparser.php",
+    "version": "0.2.0-BETA2",
+    "license": "LGPL-3.0",
+    "authors": [
+        {
+            "name": "Vítor Brandão",
+            "email": "noisebleed@noiselabs.org"
+        }
+    ],
+    "support": {
+        "irc": "irc://irc.freenode.org/noiselabs",
+        "issues": "https://github.com/noiselabs/noiselabs-php-toolkit/issues"
+    },
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "symfony/class-loader": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "NoiseLabs\\ToolKit\\ConfigParser\\": "" }
+    },
+    "target-dir": "NoiseLabs/ToolKit/ConfigParser",
+    "minimum-stability": "dev"
+}

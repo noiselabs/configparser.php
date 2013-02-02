@@ -18,25 +18,39 @@ License
 
 ConfigParser is licensed under the LGPLv3 License. See the LICENSE file for details.
 
-Installation
-============
+Installation (Composer)
+=======================
 
-Cloning/downloading from [GitHub](https://github.com/noiselabs/noiselabs-php-toolkit) is, so far, the only available method to get this library.
+### 0. Install Composer
 
-You may clone via git:
+If you don't have Composer yet, download it following the instructions on
+http://getcomposer.org/ or just run the following command:
 
-    $ git clone git://github.com/noiselabs/noiselabs-php-toolkit.git
+``` bash
+curl -s http://getcomposer.org/installer | php
+```
 
-or download a tarball either in Gzip or Zip format:
+### 1. Add the noiselabs/configparser package in your composer.json
 
-    https://github.com/noisebleed/noiselabs-php-toolkit/archives/master
+```js
+{
+    "require": {
+        "noiselabs/configparser": "dev-master"
+    }
+}
+```
+Now tell composer to download the package by running the command:
+
+```bash
+$ php composer.phar update noiselabs/configparser
+```
+
+Composer will install the bundle to your project's `vendor/noiselabs` directory.
 
 Documentation
 ==============
 
 Basic instructions on the usage of the library are presented below.
-
-API-level documentation is available under the `doc` folder in `doc/docblox/`.
 
 Supported INI File Structure
 ----------------------------
@@ -51,6 +65,8 @@ Usage
 -----
 
 ### Autoloading classes (optional)
+
+*You may skip this section if you are using Composer.*
 
 ConfigParser makes use of PHP namespaces and as such the usage of a autoloader libray is recommended. [Symfony](https://github.com/symfony/symfony) provides a great class loader available on [GitHub](https://github.com/symfony/ClassLoader).
 
