@@ -32,7 +32,8 @@ use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
 class ConfigParserTest extends \PHPUnit_Framework_TestCase
 {
     protected $filenames;
-    protected $out_filename;
+    protected $fixturesDir;
+    protected $outputFilename;
 
     protected function getFilename()
     {
@@ -42,13 +43,14 @@ class ConfigParserTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->cfg = new ConfigParser();
-        $this->filenames = array(__DIR__.'/Fixtures/source.cfg');
-        $this->out_filename = tempnam(sys_get_temp_dir(), str_replace('\\', '_',__CLASS__).'_');
+        $this->fixturesDir = __DIR__.'/Fixtures';
+        $this->filenames = array($this->fixturesDir.'/source.cfg');
+        $this->outputFilename = tempnam(sys_get_temp_dir(), str_replace('\\', '_',__CLASS__).'_');
     }
 
     protected function tearDown()
     {
-        file_exists($this->out_filename) && unlink($this->out_filename);
+        file_exists($this->outputFilename) && unlink($this->outputFilename);
     }
 
     /**
@@ -83,7 +85,6 @@ class ConfigParserTest extends \PHPUnit_Framework_TestCase
         $section = 'DeFaulT';
 
         $this->cfg->read($this->getFilename());
-
         $this->cfg->addSection($section);
     }
 
@@ -92,9 +93,7 @@ class ConfigParserTest extends \PHPUnit_Framework_TestCase
         $this->cfg->read($this->getFilename());
 
         $this->assertFalse($this->cfg->hasSection('non-existing-section'));
-
         $this->assertFalse($this->cfg->hasSection('default'));
-
         $this->assertTrue($this->cfg->hasSection('github.com'));
     }
 
@@ -103,15 +102,54 @@ class ConfigParserTest extends \PHPUnit_Framework_TestCase
         $this->cfg->read($this->getFilename());
 
         $this->assertTrue($this->cfg->hasOption('github.com', 'User'));
-
         $this->assertFalse($this->cfg->hasOption('non-existing-section', 'User'));
-
         $this->assertFalse($this->cfg->hasOption('github.com', 'non-existing-option'));
-
         $this->assertTrue($this->cfg->hasOption(null, 'ForwardX11'));
-
         $this->assertTrue($this->cfg->hasOption('', 'ForwardX11'));
-
         $this->assertFalse($this->cfg->hasOption('', 'User'));
+    }
+
+    public function testSupportedIniFileStructure()
+    {
+        $this->cfg->read($this->fixturesDir.'/supported_ini_file_structure.cfg');
+
+        $section = 'Simple Values';
+        $this->assertTrue($this->cfg->hasSection($section));
+        $this->assertEquals($this->cfg->get($section, 'key'), 'value');
+        $this->assertEquals($this->cfg->get($section, 'spaces in keys'), 'allowed');
+        $this->assertEquals($this->cfg->get($section, 'spaces in values'), 'allowed as well');
+        $this->assertEquals($this->cfg->get($section, 'spaces around the delimiter'), 'obviously');
+        $this->assertEquals($this->cfg->get($section, 'you can also use'), 'to delimit keys from values');
+
+        $section = 'All Values Are Strings';
+        $this->assertTrue($this->cfg->hasSection($section));
+        $this->assertEquals($this->cfg->get($section, 'values like this'), '1000000');
+        $this->assertEquals($this->cfg->get($section, 'or this'), '3.14159265359');
+        $this->assertEquals($this->cfg->get($section, 'are they treated as numbers?'), 'no');
+        $this->assertEquals($this->cfg->get($section, 'integers, floats and booleans are held as'), 'strings');
+        $this->assertEquals($this->cfg->get($section, 'can use the API to get converted values directly'), 'true');
+
+        $section = 'Multiline Values';
+        $this->assertTrue($this->cfg->hasSection($section));
+        $this->assertEquals($this->cfg->get($section, 'chorus'), "I'm a lumberjack, and I'm okay");
+
+        $section = 'No Values';
+        $this->assertTrue($this->cfg->hasSection($section));
+        $this->assertFalse($this->cfg->hasOption($section, 'key_without_value'));
+        $this->assertEquals($this->cfg->get($section, 'empty string value here'), '');
+
+        $section = 'You can use comments';
+        $this->assertTrue($this->cfg->hasSection($section));
+
+        $section = 'Sections Can Be Indented';
+        $this->assertTrue($this->cfg->hasSection($section));
+        $this->assertEquals($this->cfg->get($section, 'can_values_be_as_well'), 'True');
+        $this->assertEquals($this->cfg->get($section, 'does_that_mean_anything_special'), 'False');
+        $this->assertEquals($this->cfg->get($section, 'purpose'), 'formatting for readability');
+        $this->assertEquals($this->cfg->get($section, 'multiline_values'), 'are');
+
+        $section = 'issue_2';
+        $this->assertEquals($this->cfg->get($section, 'subtitle'), 'test &amp; test');
+
     }
 }

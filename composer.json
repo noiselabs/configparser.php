@@ -19,9 +19,6 @@
     "require": {
         "php": ">=5.3.3"
     },
-    "require-dev": {
-        "symfony/class-loader": "dev-master"
-    },
     "autoload": {
         "psr-0": { "NoiseLabs\\ToolKit\\ConfigParser\\": "" }
     },

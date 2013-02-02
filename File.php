@@ -16,29 +16,33 @@
  * License along with NoiseLabs-PHP-ToolKit; if not, see
  * <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
+ * Copyright (C) 2011-2013 Vítor Brandão <noisebleed@noiselabs.org>
  *
  *
- * @category NoiseLabs
- * @package ConfigParser
- * @version 0.1.1
- * @author Vítor Brandão <noisebleed@noiselabs.org>
- * @copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
+ * @category    NoiseLabs
+ * @package     ConfigParser
+ * @copyright   (C) 2011-2013 Vítor Brandão <noisebleed@noiselabs.org>
  */
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
+/**
+ * File.
+ *
+ * @author Vítor Brandão <noisebleed@noiselabs.org>
+ */
 class File
 {
     /**
-     * Pathname
+     * @var string
+     * File pathname.
      */
-    protected $_path;
+    protected $path;
 
     /**
      * File pointer to the given filename.
      */
-    protected $_handle;
+    protected $handle;
 
     /**
      * A list of possible modes for fopen():
@@ -84,52 +88,113 @@ class File
      * 'c+': Open the file for reading and writing; otherwise it has the
      * same behavior as 'c'.
      */
-    protected $_mode;
+    protected $mode;
 
+    /**
+     * @var string
+     * File contents.
+     */
+    protected $contents;
+
+    /**
+     * @var int
+     * File modification time.
+     */
+    protected $mtime = -1;
+
+    /**
+     * Constructor.
+     */
     public function __construct($filename, $mode = 'rb')
     {
-        $this->_path = $filename;
-        $this->_mode = $mode;
+        $this->path = $filename;
+        $this->mode = $mode;
     }
 
+    /**
+     * @return string
+     */
     public function getPathname()
     {
-        return $this->_path;
+        return $this->path;
     }
 
     public function open($mode = null)
     {
         if (!isset($mode)) {
-            $mode = $this->_mode;
+            $mode = $this->mode;
         }
 
-        $this->_handle = fopen($this->_path, $mode);
+        $this->handle = fopen($this->path, $mode);
 
-        return $this->_handle;
+        return $this->handle;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContents()
+    {
+        if (!isset($this->handle) || !is_resource($this->handle)) {
+            $this->open();
+        }
+
+        $mtime = filemtime($this->path);
+        if (!isset($this->contents) || $mtime > $this->mtime) {
+            $this->mtime = $mtime;
+            $this->contents = fread($this->handle, filesize($this->path));
+        }
+
+        return $this->contents;
+    }
+
+    /**
+     * @param  string $contents
+     * @return string
+     */
+    public function setContents($contents)
+    {
+        $this->contents = $contents;
     }
 
     public function write($content)
     {
-        return ($this->_handle) ? fwrite($this->_handle, $content) : false;
+        return ($this->handle) ? fwrite($this->handle, $content) : false;
     }
 
+    /**
+     * Closes the open file pointer.
+     *
+     * @return Returns TRUE on success or FALSE on failure.
+     */
     public function close()
     {
-        return fclose($this->_handle);
+        $rc = fclose($this->handle);
+        $this->handle = null;
+
+        return $rc;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function exists()
+    {
+        return file_exists($this->path);
     }
 
     public function isReadable()
     {
-        return is_readable($this->_path);
+        return is_readable($this->path);
     }
 
     public function isWritable()
     {
-        return is_writable($this->_path);
+        return is_writable($this->path);
     }
 
     public function remove()
     {
-        return unlink($this->_path);
+        return unlink($this->path);
     }
 }

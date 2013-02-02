@@ -16,20 +16,23 @@
  * License along with NoiseLabs-PHP-ToolKit; if not, see
  * <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
+ * Copyright (C) 2011-2013 Vítor Brandão <noisebleed@noiselabs.org>
  *
  *
- * @category NoiseLabs
- * @package ConfigParser
- * @version 0.2.0-BETA2
- * @author Vítor Brandão <noisebleed@noiselabs.org>
- * @copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
+ * @category    NoiseLabs
+ * @package     ConfigParser
+ * @copyright   (C) 2011-2013 Vítor Brandão <noisebleed@noiselabs.org>
  */
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
 use NoiseLabs\ToolKit\ConfigParser\ParameterBag;
 
+/**
+ * Base class for ConfigParser classes.
+ *
+ * @author Vítor Brandão <noisebleed@noiselabs.org>
+ */
 abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     const VERSION = '0.2.0-BETA2';
@@ -129,47 +132,6 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     }
 
     /**
-     * Saves all comments into an internal variable to be used when writing the
-     * configuration to a file.
-     *
-     * @param string $filename
-     */
-    protected function readComments($filename)
-    {
-        $this->_comments = file($filename);
-
-        foreach (array_keys($this->_comments) as $i) {
-            if (substr(trim($this->_comments[$i]), 0, 1) != ';') {
-                unset($this->_comments[$i]);
-            }
-        }
-    }
-
-    /**
-     * Note the usage of INI_SCANNER_RAW to avoid parser_ini_files from
-     * parsing options and transforming 'false' values to empty strings.
-     */
-    protected function _read($filename)
-    {
-        if (!file_exists($filename)) {
-            $errmsg = 'File '.$file->getPathname().' does not exist.';
-            if ($this->_throwExceptions()) {
-                throw new \RuntimeException($errmsg);
-            } else {
-                $this->log($errmsg);
-
-                return false;
-            }
-        }
-
-        if (true === $this->settings->get('save_comments')) {
-            $this->readComments($filename);
-        }
-
-        return @parse_ini_file($filename, static::HAS_SECTIONS, INI_SCANNER_RAW);
-    }
-
-    /**
      * Attempt to read and parse a list of filenames, returning a list of
      * filenames which were successfully parsed. If filenames is a string, it
      * is treated as a single filename. If a file named in filenames cannot be
@@ -191,12 +153,10 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
         foreach ($filenames as $filename) {
             if (is_readable($filename)) {
                 // register a new file...
-                $this->_files[] = new File($filename, 'rb');
+                $file = new File($filename, 'rb');
+                $this->_files[] = $file;
                 // ... and append configuration
-                $this->_sections = array_replace(
-                    $this->_sections,
-                    $this->_read($filename)
-                );
+                $this->_sections = array_replace($this->_sections, $this->_read($file));
             }
         }
     }
@@ -223,10 +183,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     {
         $filenames = array();
         foreach ($this->_files as $file) {
-            $this->_sections = array_merge(
-                $this->_sections,
-                $this->_read($file->getPathname())
-            );
+            $this->_sections = array_merge($this->_sections, $this->_read($file->getPathname()));
         }
     }
 
@@ -312,7 +269,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      */
     public function dump()
     {
-        var_dump($this->_sections);
+        return $this->_sections;
     }
 
     /**
@@ -395,10 +352,86 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
         error_log($message);
     }
 
+    /**
+     * Saves all comments into an internal variable to be used when writing the
+     * configuration to a file.
+     *
+     * @param string $filename
+     */
+    protected function readComments($filename)
+    {
+        $this->_comments = file($filename);
+
+        foreach (array_keys($this->_comments) as $i) {
+            if (substr(trim($this->_comments[$i]), 0, 1) != ';') {
+                unset($this->_comments[$i]);
+            }
+        }
+    }
+
+    /**
+     * Note the usage of INI_SCANNER_RAW to avoid parser_ini_files from
+     * parsing options and transforming 'false' values to empty strings.
+     */
+    protected function _read(File $file)
+    {
+        if (!$file->exists()) {
+            $errmsg = 'File '.$file->getPathname().' does not exist.';
+            if ($this->_throwExceptions()) {
+                throw new \RuntimeException($errmsg);
+            } else {
+                $this->log($errmsg);
+
+                return false;
+            }
+        }
+
+        if (true === $this->settings->get('save_comments')) {
+            $this->readComments($file->getPathname());
+        }
+
+        $contents = $this->sanitizeIniStructure($file->getContents());
+
+        return parse_ini_string($contents, static::HAS_SECTIONS, INI_SCANNER_RAW);
+    }
+
     abstract protected function _buildOutputString();
 
     protected function _throwExceptions()
     {
         return (false === $this->settings->get('throw_exceptions')) ? false : true;
+    }
+
+    /**
+     * Sanitize the INI file structure because parse_ini_string() doesn't like
+     * some of the features supported in Python's configparser.
+     *
+     * Hask marks:
+     *  Since PHP version 5.3.0 "Hash marks (#) may no longer be used as comments
+     *  and will throw a deprecation warning if used". To remain compatible with
+     *  our Python counterpart we need make sure hash marks can be used in INI
+     *  files so we replace them internally with semicolons (;) to please
+     *  parse_ini_*() functions.
+     *
+     * @param  string $contents File contents as they come from the file.
+     * @return string Sanitized contents
+     */
+    protected function sanitizeIniStructure($contents)
+    {
+        $lines = explode("\n", $contents);
+        foreach (array_keys($lines) as $k) {
+            // remove leading whitespace
+            $lines[$k] = preg_replace('/(^\s*)(.*$)/', '${2}', $lines[$k]);
+
+            // replace hash marks with semicolons
+            $lines[$k] = preg_replace('/(^#)/', ';', $lines[$k], 1, $count);
+
+            // replace the delimiter ":" with "="
+            if ($count == 0) {
+                $lines[$k] = preg_replace('/([^:])(:)/', '${1} =', $lines[$k], 1, $count);
+             }
+        }
+
+        return implode("\n", $lines);
     }
 }
