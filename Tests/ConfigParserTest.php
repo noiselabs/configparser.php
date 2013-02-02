@@ -148,8 +148,9 @@ class ConfigParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->cfg->get($section, 'purpose'), 'formatting for readability');
         $this->assertEquals($this->cfg->get($section, 'multiline_values'), 'are');
 
-        $section = 'issue_2';
-        $this->assertEquals($this->cfg->get($section, 'subtitle'), 'test &amp; test');
+        $section = 'issue #2';
+        $this->assertEquals($this->cfg->get($section, 'subtitle'), 'test &amp');
+        $this->assertEquals($this->cfg->get($section, 'escaped_subtitle'), 'test &amp; test');
 
     }
 }

@@ -1,6 +1,8 @@
 ConfigParser - A Configuration File Parser for PHP 5.3
 =======================================================
 
+[![Build Status](https://travis-ci.org/noiselabs/configparser.php.png?branch=master)](https://travis-ci.org/noiselabs/configparser.php)
+
 What is ConfigParser?
 ---------------------
 
