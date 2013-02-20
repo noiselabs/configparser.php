@@ -16,14 +16,14 @@
  * License along with NoiseLabs-PHP-ToolKit; if not, see
  * <http://www.gnu.org/licenses/>.
  *
- * Copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
+ * Copyright (C) 2011 Vítor Brandão <vitor@noiselabs.org>
  *
  *
  * @category NoiseLabs
  * @package ConfigParser
  * @version 0.1.1
- * @author Vítor Brandão <noisebleed@noiselabs.org>
- * @copyright (C) 2011 Vítor Brandão <noisebleed@noiselabs.org>
+ * @author Vítor Brandão <vitor@noiselabs.org>
+ * @copyright (C) 2011 Vítor Brandão <vitor@noiselabs.org>
  */
 
 namespace NoiseLabs\ToolKit\ConfigParser\Exception;
