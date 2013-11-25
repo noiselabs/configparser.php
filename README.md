@@ -295,3 +295,7 @@ Acknowledgements
 -----------------
 
 Python's [configparser](http://docs.python.org/dev/library/configparser.html) library was used as a source of inspiration for this library, including documentation and docblocks.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/noiselabs/configparser.php/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
