@@ -1,7 +1,7 @@
 ConfigParser - A Configuration File Parser for PHP 5.3
 =======================================================
 
-[![Build Status](https://travis-ci.org/noiselabs/configparser.php.png?branch=master)](https://travis-ci.org/noiselabs/configparser.php)
+[![Build Status](https://travis-ci.org/kayzore/configparser.php.svg?branch=master)](https://travis-ci.org/kayzore/configparser.php)
 
 What is ConfigParser?
 ---------------------
@@ -13,7 +13,7 @@ The ConfigParser class provides a way to read, interpret and write configuration
 Requirements
 ============
 
-* PHP 5.3.2 and up.
+* PHP 7.1 and up.
 
 License
 ========
@@ -32,22 +32,30 @@ http://getcomposer.org/ or just run the following command:
 curl -s http://getcomposer.org/installer | php
 ```
 
-### 1. Add the noiselabs/configparser package in your composer.json
+### 1. Add the kayzore/configparser package in your project
 
-```js
+Run composer require command
+
+```
+composer.phar require kayzore/configparser
+```
+
+Or add the kayzore/configparser package in your composer.json
+
+```json
 {
     "require": {
-        "noiselabs/configparser": "dev-master"
+        "kayzore/configparser": "dev-master"
     }
 }
 ```
-Now tell composer to download the package by running the command:
+And tell composer to download the package by running the command:
 
 ```bash
-$ php composer.phar update noiselabs/configparser
+$ php composer.phar update kayzore/configparser
 ```
 
-Composer will install the bundle to your project's `vendor/noiselabs` directory.
+Composer will install the bundle to your project's `vendor/kayzore` directory.
 
 Documentation
 ==============
@@ -65,31 +73,6 @@ Configuration files may include comments, prefixed by `;`. Hash marks (`#` ) may
 
 Usage
 -----
-
-### Autoloading classes (optional)
-
-*You may skip this section if you are using Composer.*
-
-ConfigParser makes use of PHP namespaces and as such the usage of a autoloader libray is recommended. [Symfony](https://github.com/symfony/symfony) provides a great class loader available on [GitHub](https://github.com/symfony/ClassLoader).
-
-To have Symfony's ClassLoader autoloading our classes create a `autoload.php` file  and included it at the top of your scripts.
-
-    <?php
-    // autoload.php
-
-    require_once '/path/to/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
-
-    use Symfony\Component\ClassLoader\UniversalClassLoader;
-
-    $loader = new UniversalClassLoader();
-    $loader->registerNamespaces(array(
-        'NoiseLabs' => '/path/to/noiselabs-php-toolkit/src',
-    ));
-    $loader->register();
-
-    ?>
-
-### Basic usage
 
 First, take the following INI file as an example:
 
@@ -281,21 +264,24 @@ To override the original logger method just extend ConfigParser and replace `Con
 Development
 ===========
 
-Authors
+Original Authors
 -------
 
 * Vítor Brandão - <vitor@noiselabs.org> / [twitter](http://twitter.com/noiselabs) / [blog](http://blog.noiselabs.org)
 
+Upgrade Authors
+-------
+
+* Jerome Lelievre - <jerome.lelievre2@gmail.com>
+
 Submitting bugs and feature requests
 ------------------------------------
 
-Bugs and feature requests are tracked on [GitHub](https://github.com/noiselabs/noiselabs-php-toolkit/issues).
+Bugs and feature requests are tracked on [GitHub](https://github.com/kayzore/configparser.php/issues).
 
 Acknowledgements
 -----------------
 
 Python's [configparser](http://docs.python.org/dev/library/configparser.html) library was used as a source of inspiration for this library, including documentation and docblocks.
 
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/noiselabs/configparser.php/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 

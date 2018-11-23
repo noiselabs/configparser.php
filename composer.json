@@ -1,26 +1,34 @@
 {
-    "name": "noiselabs/configparser",
+    "name": "kayzore/configparser",
     "type": "library",
-    "description": "A configuration file parser for PHP 5.3 heavily inspired by Python's configparser library",
-     "keywords": ["noiselabs", "configparser", "config", "parser"],
-    "homepage": "https://github.com/noiselabs/configparser.php",
-    "version": "0.2.0-BETA2",
+    "description": "A configuration file parser for PHP 7.1 and up heavily inspired by Python's configparser library",
+     "keywords": ["noiselabs", "kayzore", "configparser", "config", "parser"],
+    "homepage": "https://github.com/kayzore/configparser.php",
+    "version": "0.1.0",
     "license": "LGPL-3.0",
     "authors": [
         {
             "name": "Vítor Brandão",
             "email": "noisebleed@noiselabs.org"
+        },
+        {
+            "name": "Jerome Lelievre",
+            "email": "jerome.lelievre2@gmail.com"
         }
     ],
     "support": {
-        "irc": "irc://irc.freenode.org/noiselabs",
-        "issues": "https://github.com/noiselabs/noiselabs-php-toolkit/issues"
+        "issues": "https://github.com/kayzore/configparser.php/issues"
     },
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0"
     },
     "autoload": {
-        "psr-0": { "NoiseLabs\\ToolKit\\ConfigParser\\": "" }
+        "psr-4": {
+            "NoiseLabs\\ToolKit\\ConfigParser\\": ""
+        }
     },
     "target-dir": "NoiseLabs/ToolKit/ConfigParser",
     "minimum-stability": "dev"

@@ -28,7 +28,6 @@
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
-use NoiseLabs\ToolKit\ConfigParser\File;
 use NoiseLabs\ToolKit\ConfigParser\Exception\NoOptionException;
 
 /**
@@ -50,9 +49,15 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
     }
 
     /**
-     * If the given option exists, return TRUE; otherwise return FALSE.
+     * Remove the specified option from the specified section. If the section
+     * does not exist, raise NoSectionException. If the option existed to be
+     * removed, return TRUE; otherwise return FALSE.
+     *
+     * @param string $option
+     *
+     * @return bool
      */
-    public function hasOption($option)
+    public function hasOption(string $option)
     {
         return isset($this->_sections[$option]);
     }
@@ -64,11 +69,12 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
      * $fallback parameter.
      * If everything fails throw a NoOptionException.
      *
-     * @param $option 	Option name
-     * @param $fallback A fallback value to use if the option isn't found in
-     * 					the configuration.
+     * @param string            $option 	Option name
+     * @param string            $fallback   A fallback value to use if the option isn't found in
+     * 					                    the configuration and $defaults.
      *
-     * @return Option            value (if available)
+     * @return string                       Option value (if available)
+     *
      * @throws NoOptionException Couldn't find the desired option in the
      * configuration or as a fallback value.
      */
@@ -93,8 +99,13 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
 
     /**
      * A convenience method which coerces the option value to an integer.
+     *
+     * @param string $option
+     * @param string|null $fallback
+     *
+     * @return int
      */
-    public function getInt($option, $fallback = null)
+    public function getInt(string $option, string $fallback = null)
     {
         return (int) $this->get($option);
     }
@@ -102,8 +113,13 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
     /**
      * A convenience method which coerces the option value to a floating
      * point number.
+     *
+     * @param string $option
+     * @param string|null $fallback
+     *
+     * @return float
      */
-    public function getFloat($option, $fallback = null)
+    public function getFloat(string $option, string $fallback = null)
     {
         return (float) $this->get($option);
     }
@@ -115,8 +131,13 @@ class NoSectionsConfigParser extends BaseConfigParser implements NoSectionsConfi
      * 'false', and 'off', which cause it to return FALSE.
      * These string values are checked in a case-insensitive manner. Any
      * other value will cause it to raise ValueException.
+     *
+     * @param string $option
+     * @param string|null $fallback
+     *
+     * @return null
      */
-    public function getBoolean($option, $fallback = null)
+    public function getBoolean(string $option, string $fallback = null)
     {
         if (is_string($value = $this->get($option, $fallback))) {
             $value = strtolower($value);

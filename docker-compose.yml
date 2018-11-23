@@ -1,0 +1,13 @@
+version: "3.5"
+services:
+  configparser_php:
+    image: "configparser/php"
+    build:
+      context: "."
+      dockerfile: "./dockers/php/Dockerfile"
+      args:
+        - "http_proxy=${HTTP_PROXY}"
+        - "https_proxy=${HTTPS_PROXY}"
+    container_name: "configparser_php"
+    volumes:
+      - ".:/usr/local/apache2/htdocs/"

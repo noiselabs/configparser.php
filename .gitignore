@@ -70,3 +70,5 @@ dwsync.xml
 intermediate
 publish
 .idea
+.env
+\.phpunit\.result\.cache

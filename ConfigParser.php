@@ -28,8 +28,6 @@
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
-use NoiseLabs\ToolKit\ConfigParser\BaseConfigParser;
-use NoiseLabs\ToolKit\ConfigParser\File;
 use NoiseLabs\ToolKit\ConfigParser\Exception\DuplicateSectionException;
 use NoiseLabs\ToolKit\ConfigParser\Exception\NoSectionException;
 use NoiseLabs\ToolKit\ConfigParser\Exception\NoOptionException;
@@ -59,7 +57,7 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * Return a list of the sections available; the default section is not
      * included in the list.
      */
-    public function sections()
+    public function sections(): array
     {
         return array_keys($this->_sections);
     }
@@ -70,8 +68,12 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * default section name is passed, InvalidArgumentException is raised.
      * The name of the section must be a string; if not,
      * InvalidArgumentException is raised too.
+     *
+     * @param string $section
+     *
+     * @return $this
      */
-    public function addSection($section)
+    public function addSection(string $section)
     {
         // Raise InvalidArgumentException if the name of the section is not
         // a string
@@ -97,16 +99,24 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     /**
      * Indicates whether the named section is present in the configuration.
      * The default section is not acknowledged.
+     *
+     * @param string $section
+     *
+     * @return bool
      */
-    public function hasSection($section)
+    public function hasSection(string $section)
     {
         return (isset($this->_sections[$section]) && is_array($this->_sections[$section]));
     }
 
     /**
      * Return a list of options available in the specified section.
+     *
+     * @param string $section
+     *
+     * @return array
      */
-    public function options($section)
+    public function options(string $section)
     {
         if (true === $this->hasSection($section)) {
             return array_keys($this->_sections[$section]);
@@ -119,8 +129,13 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * If the given section exists, and contains the given option, return
      * TRUE; otherwise return FALSE. If the specified section is NULL or an
      * empty string, DEFAULT is assumed.
+     *
+     * @param string $section
+     * @param string $option
+     *
+     * @return bool
      */
-    public function hasOption($section, $option)
+    public function hasOption(?string $section, string $option)
     {
         if (($section === null) || ($section == '')) {
             return isset($this->_defaults[$option]);
@@ -130,9 +145,14 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     }
 
     /**
+     * @param string $section
+     * @param array $options
+     *
+     * @return $this|null
+     *
      * @throws NoSectionException if section doesn't exist
      */
-    public function setOptions($section, array $options = array())
+    public function setOptions(string $section, array $options = [])
     {
         if ($this->hasSection($section)) {
             $this->_sections[$section] = $options;
@@ -170,16 +190,16 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * $fallback parameter.
      * If everything fails throw a NoOptionException.
      *
-     * @param $section 	Section name
-     * @param $option 	Option name
-     * @param $fallback A fallback value to use if the option isn't found in
-     * 					the configuration and $defaults.
+     * @param string            $section 	Section name
+     * @param string            $option 	Option name
+     * @param string            $fallback   A fallback value to use if the option isn't found in
+     * 					                    the configuration and $defaults.
      *
-     * @return Option            value (if available)
-     * @throws NoOptionException Couldn't find the desired option in the
-     * configuration, $defaults or as a fallback value.
+     * @return string           Option      Value (if available)
+     * @throws NoOptionException            Couldn't find the desired option in the
+     *                                      configuration, $defaults or as a fallback value.
      */
-    public function get($section, $option, $fallback = null)
+    public function get(string $section, string $option, string $fallback = null)
     {
         if ($this->hasOption($section, $option)) {
             return $this->_sections[$section][$option];
@@ -205,8 +225,14 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     /**
      * A convenience method which coerces the option in the specified section
      * to an integer.
+     *
+     * @param string $section
+     * @param string $option
+     * @param string|null $fallback
+     *
+     * @return int
      */
-    public function getInt($section, $option, $fallback = null)
+    public function getInt(string $section, string $option, string $fallback = null)
     {
         return (int) $this->get($section, $option);
     }
@@ -214,8 +240,14 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
     /**
      * A convenience method which coerces the option in the specified section
      * to a floating point number.
+     *
+     * @param string $section
+     * @param string $option
+     * @param string|null $fallback
+     *
+     * @return float
      */
-    public function getFloat($section, $option, $fallback = null)
+    public function getFloat(string $section, string $option, string $fallback = null)
     {
         return (float) $this->get($section, $option);
     }
@@ -227,8 +259,14 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * and '0', 'no', 'false', and 'off', which cause it to return FALSE.
      * These string values are checked in a case-insensitive manner. Any
      * other value will cause it to raise ValueException.
+     *
+     * @param string $section
+     * @param string $option
+     * @param string|null $fallback
+     *
+     * @return null
      */
-    public function getBoolean($section, $option, $fallback = null)
+    public function getBoolean(string $section, string $option, string $fallback = null)
     {
         if (is_string($value = $this->get($section, $option))) {
             $value = strtolower($value);
@@ -253,8 +291,14 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * value; otherwise raise NoSectionException.
      *
      * @todo Option and value must be strings; if not, TypeException is raised.
+     *
+     * @param string $section
+     * @param string $option
+     * @param $value
+     *
+     * @return $this|null
      */
-    public function set($section, $option, $value)
+    public function set(string $section,string $option, $value)
     {
         if (true === $this->hasSection($section)) {
             $this->_sections[$section][$option] = (string) $value;
@@ -331,8 +375,13 @@ class ConfigParser extends BaseConfigParser implements ConfigParserInterface
      * Remove the specified option from the specified section. If the section
      * does not exist, raise NoSectionException. If the option existed to be
      * removed, return TRUE; otherwise return FALSE.
+     *
+     * @param string $section
+     * @param string $option
+     *
+     * @return bool|null
      */
-    public function removeOption($section, $option)
+    public function removeOption(string $section, string $option)
     {
         if (true === $this->hasSection($section)) {
             if (isset($this->_sections[$section][$option])) {
