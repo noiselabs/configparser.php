@@ -26,7 +26,7 @@
 
 namespace NoiseLabs\ToolKit\ConfigParser;
 
-use NoiseLabs\ToolKit\ConfigParser\ParameterBag;
+use RuntimeException;
 
 /**
  * Base class for ConfigParser classes.
@@ -58,19 +58,19 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      *      @todo: Describe the interpolation mecanism.
      *      Defaults to FALSE.
      */
-    public $settings = array();
+    public $settings = [];
 
     /**
      *
      * @var array
      */
-    protected $_defaults = array();
+    protected $_defaults = [];
 
     /**
      * The configuration representation is stored here.
      * @var array
      */
-    protected $_sections = array();
+    protected $_sections = [];
 
     /**
      * Comment lines are stored here so they can make it to the destination
@@ -84,13 +84,13 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * An array of FILE objects representing the loaded files.
      * @var array
      */
-    protected $_files = array();
+    protected $_files = [];
 
     /**
      * Booleans alias
      * @var array
      */
-    protected $_boolean_states = array(
+    protected $_boolean_states = [
         '1'     => true,
         'yes'   => True,
         'true'  => true,
@@ -99,7 +99,7 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
         'no'    => false,
         'false' => false,
         'off'   => false
-    );
+    ];
 
     /**
      * Constructor.
@@ -107,18 +107,18 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * @param array $defaults
      * @param array $settings
      */
-    public function __construct(array $defaults = array(), array $settings = array())
+    public function __construct(array $defaults = [], array $settings = [])
     {
         $this->_defaults = $defaults;
         // default options
-        $this->settings = new ParameterBag(array(
+        $this->settings = new ParameterBag([
             'delimiter'                 => '=',
             'space_around_delimiters'   => true,
             'linebreak'                 => PHP_EOL,
             'throw_exceptions'          => true,
             'interpolation'             => false,
-            'save_comments'             => true
-        ));
+            'save_comments'             => true,
+        ]);
 
         $this->settings->add($settings);
     }
@@ -143,11 +143,13 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * contain an empty dataset. An application which requires initial values
      * to be loaded from a file should load the required file or files using
      * read_file() before calling read() for any optional files:
+     *
+     * @param array|string $filenames
      */
-    public function read($filenames = array())
+    public function read($filenames = [])
     {
         if (!is_array($filenames)) {
-            $filenames = array($filenames);
+            $filenames = [$filenames];
         }
 
         foreach ($filenames as $filename) {
@@ -181,7 +183,6 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      */
     public function reload()
     {
-        $filenames = array();
         foreach ($this->_files as $file) {
             $this->_sections = array_merge($this->_sections, $this->_read($file->getPathname()));
         }
@@ -190,9 +191,13 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     /**
      * Write an .ini-format representation of the configuration state
      *
+     * @param string $filename
+     *
+     * @return bool
+     *
      * @throws RuntimeException if file is not writable
      */
-    public function write($filename)
+    public function write(string $filename)
     {
         $file = new File($filename);
 
@@ -219,6 +224,8 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
         $file->write($this->_buildOutputString());
 
         $file->close();
+
+        return true;
     }
 
     /**
@@ -259,13 +266,13 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      */
     public function clear()
     {
-        $this->_sections = array();
+        $this->_sections = [];
     }
 
     /**
      * Output the current configuration representation.
      *
-     * @return void
+     * @return array
      */
     public function dump()
     {
@@ -286,8 +293,12 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     /**
      * Remove the specified section from the configuration. If the section in
      * fact existed, return TRUE. Otherwise return FALSE.
+     *
+     * @param string $section
+     *
+     * @return bool
      */
-    public function removeSection($section)
+    public function removeSection(string $section)
     {
         if (true === $this->hasSection($section)) {
             unset($this->_sections[$section]);
@@ -328,8 +339,8 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
      * Adds an array of options to the given section (implements the
      * \ArrayAccess interface).
      *
-     * @param string $section The name of the section to insert $options.
-     * @param array  $options The array of options to be added
+     * @param $offset
+     * @param $value
      */
     public function offsetSet($offset, $value)
     {
@@ -372,6 +383,10 @@ abstract class BaseConfigParser implements \ArrayAccess, \IteratorAggregate, \Co
     /**
      * Note the usage of INI_SCANNER_RAW to avoid parser_ini_files from
      * parsing options and transforming 'false' values to empty strings.
+     * 
+     * @param File $file
+     *
+     * @return array|bool
      */
     protected function _read(File $file)
     {

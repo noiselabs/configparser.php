@@ -27,28 +27,40 @@
 
 namespace NoiseLabs\ToolKit\ConfigParser\Tests;
 
+use InvalidArgumentException;
 use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
+use NoiseLabs\ToolKit\ConfigParser\NoSectionsConfigParser;
+use PHPUnit\Framework\TestCase;
 
-class ConfigParserTest extends \PHPUnit_Framework_TestCase
+class ConfigParserTest extends TestCase
 {
     protected $filenames;
     protected $fixturesDir;
     protected $outputFilename;
+    /**
+     * @var ConfigParser
+     */
+    protected $cfg;
+    /**
+     * @var NoSectionsConfigParser
+     */
+    protected $noCfg;
 
     protected function getFilename()
     {
         return $this->filenames[0];
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->cfg = new ConfigParser();
+        $this->noCfg = new NoSectionsConfigParser();
         $this->fixturesDir = __DIR__.'/Fixtures';
         $this->filenames = array($this->fixturesDir.'/source.cfg');
         $this->outputFilename = tempnam(sys_get_temp_dir(), str_replace('\\', '_',__CLASS__).'_');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         file_exists($this->outputFilename) && unlink($this->outputFilename);
     }
@@ -59,18 +71,6 @@ class ConfigParserTest extends \PHPUnit_Framework_TestCase
     public function testAddDuplicateSection()
     {
         $section = 'github.com';
-
-        $this->cfg->read($this->getFilename());
-
-        $this->cfg->addSection($section);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testAddNonStringSection()
-    {
-        $section = array();
 
         $this->cfg->read($this->getFilename());
 

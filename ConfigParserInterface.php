@@ -37,39 +37,39 @@ interface ConfigParserInterface
 
     public function sections();
 
-    public function addSection($section);
+    public function addSection(string $section);
 
-    public function hasSection($section);
+    public function hasSection(string $section);
 
-    public function options($section);
+    public function options(string $section);
 
-    public function hasOption($section, $option);
+    public function hasOption(?string $section, string $option);
 
-    public function read($filenames = array());
+    public function read($filenames = []);
 
     public function readFile($filehandler);
 
-    public function readString($string);
+    public function readString(string $string);
 
     public function readArray(array $array);
 
-    public function get($section, $option);
+    public function get(string $section, string $option);
 
-    public function getInt($section, $option);
+    public function getInt(string $section, string $option);
 
-    public function getFloat($section, $option);
+    public function getFloat(string $section, string $option);
 
-    public function getBoolean($section, $option);
+    public function getBoolean(string $section, string $option);
 
-    public function set($section, $option, $value);
+    public function set(string $section, string $option, $value);
 
-    public function write($filename);
+    public function write(string $filename);
 
     public function save();
 
-    public function removeOption($section, $option);
+    public function removeOption(string $section, string $option);
 
-    public function removeSection($section);
+    public function removeSection(string $section);
 
     public function dump();
 }
